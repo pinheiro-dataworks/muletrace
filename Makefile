@@ -44,6 +44,9 @@ quality:  ## Complexity, dead code, dependency and security checks
 	$(UV) run bandit -q -c pyproject.toml -r src
 	$(UV) run pip-audit --skip-editable
 
+.PHONY: all
+all: install data baseline features experiments  ## From a fresh clone to a trained, evaluated model
+
 .PHONY: check
 check: lint typecheck test quality  ## Every gate CI runs
 
@@ -60,6 +63,16 @@ data:  ## Download missing files, verify checksums, prepare Parquet, add the Pix
 baseline:  ## Score the rules baseline on the temporal hold-out
 	$(UV) run muletrace models rules
 
+.PHONY: features
+features:  ## Build and cache point-in-time feature snapshots
+	$(UV) run muletrace features build
+
+.PHONY: experiments
+experiments:  ## Backtest the model ladder, label-delay sweep and the external check
+	$(UV) run muletrace models backtest
+	$(UV) run muletrace models delay-sweep
+	$(UV) run muletrace models transaction-check
+
 .PHONY: notebooks
 notebooks:  ## Re-execute the notebooks in place (outputs are committed)
-	cd notebooks && $(UV) run jupyter nbconvert --to notebook --execute --inplace 01_eda.ipynb
+	cd notebooks && $(UV) run jupyter nbconvert --to notebook --execute --inplace 01_eda.ipynb 02_error_analysis.ipynb
