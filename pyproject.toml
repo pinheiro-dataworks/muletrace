@@ -17,6 +17,11 @@ classifiers = [
 # in the `pipeline` extra.
 dependencies = []
 
+[project.optional-dependencies]
+pipeline = [
+    "polars>=2.0",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=8.3",
