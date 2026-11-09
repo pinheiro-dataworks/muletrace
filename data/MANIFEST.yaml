@@ -1,0 +1,41 @@
+source:
+  name: IBM AMLworld (IBM Transactions for Anti Money Laundering)
+  publisher: IBM Research
+  kaggle_dataset: ealtman2019/ibm-transactions-for-anti-money-laundering-aml
+  url: https://www.kaggle.com/datasets/ealtman2019/ibm-transactions-for-anti-money-laundering-aml
+  paper: Altman et al., Realistic Synthetic Financial Transactions for Anti-Money
+    Laundering Models, arXiv:2306.16424
+  licence: CDLA-Sharing-1.0
+  licence_file: data/LICENSES/CDLA-Sharing-1.0.txt
+generated_on: '2026-11-09'
+files:
+- name: HI-Small_accounts.csv
+  bytes: 34053187
+  sha256: 786808526e33cfc441212dd6fccda7edfc24172149bed59c6ef59b186836b014
+  data_rows: 518581
+  downloaded_on: '2026-11-09'
+- name: HI-Small_Patterns.txt
+  bytes: 323844
+  sha256: 2c546b5ce6009e73851f0139af053cf845f08bf92f3bc82fe1eb937dec2ef39b
+  data_rows: null
+  downloaded_on: '2026-11-09'
+- name: HI-Small_Trans.csv
+  bytes: 475664283
+  sha256: b19d39f515523373f991b689c07e11e7b0b95c17a2c27a87d91584ae16c5b040
+  data_rows: 5078345
+  downloaded_on: '2026-11-09'
+- name: LI-Small_accounts.csv
+  bytes: 47248016
+  sha256: f51322afe81859fefc58b09cae6068dbdacce78cd9dfb9ef2b693e5190ec4718
+  data_rows: 712688
+  downloaded_on: '2026-11-09'
+- name: LI-Small_Patterns.txt
+  bytes: 99156
+  sha256: 734c15b7ff4be1a04a3529bd1524b92c1e8b62289d3ce4881423596ee47a208f
+  data_rows: null
+  downloaded_on: '2026-11-09'
+- name: LI-Small_Trans.csv
+  bytes: 650422357
+  sha256: f7a9940339c78b5d1476071505b5867c0f5319640b9c4279d13f531bf965319d
+  data_rows: 6924049
+  downloaded_on: '2026-11-09'

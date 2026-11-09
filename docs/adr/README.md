@@ -8,6 +8,8 @@ change its decision; a later record supersedes it instead.
 | [001](001-scope.md) | Scope: one user, one workflow, small datasets | Accepted |
 | [002](002-region-and-services.md) | Region and services: us-east-1, pay-per-use only | Accepted |
 | [003](003-no-agentcore-in-v1.md) | No Bedrock AgentCore in v1 | Accepted |
+| [004](004-identifiers-and-data-layout.md) | Identifiers and data layout | Accepted |
+| [005](005-exchange-rates-from-the-data.md) | Exchange rates inferred from the data | Accepted |
 
 Template: *Context* (what forces the decision), *Decision* (what we do), *Consequences*
 (what gets easier, what gets harder, what we would revisit).

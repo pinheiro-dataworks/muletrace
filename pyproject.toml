@@ -17,6 +17,16 @@ classifiers = [
 # in the `pipeline` extra.
 dependencies = []
 
+[project.optional-dependencies]
+pipeline = [
+    "pandera[polars]>=0.30",
+    "polars>=2.0",
+    "pyyaml>=6.0.2",
+]
+
+[project.scripts]
+muletrace = "muletrace.cli:main"
+
 [dependency-groups]
 dev = [
     "pytest>=8.3",
