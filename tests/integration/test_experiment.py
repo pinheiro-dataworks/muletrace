@@ -17,6 +17,7 @@ from muletrace.models.evaluate import BootstrapConfig, EvaluationConfig
 from muletrace.models.experiment import ExperimentConfig, run_delay_sweep, run_experiment
 from muletrace.models.rules_baseline import RulesConfig
 from muletrace.models.train import TrainingConfig
+from muletrace.models.transaction_level import run_transaction_check
 from tests.fixtures.world import generate_world
 
 pytestmark = pytest.mark.integration
@@ -88,3 +89,18 @@ def test_delay_sweep_reports_every_delay(
         <= result["delays"]["24h"]["already_active_share"]
     )
     assert "lgbm_tabular_graph" in result["delays"]["24h"]["recall"]
+
+
+def test_transaction_check_runs_on_the_temporal_split(
+    world: Path, config: ExperimentConfig
+) -> None:
+    result = run_transaction_check(
+        pl.read_parquet(world / "transactions.parquet"),
+        pl.read_parquet(world / "accounts.parquet"),
+        config.training,
+        "HI-Small",
+    )
+    rows = result["rows"]
+    assert rows["train"] > rows["valid"] > 0
+    assert 0 <= result["test"]["f1_percent"] <= 100
+    assert result["paper_reference"]["GFP + LightGBM"] == 62.86

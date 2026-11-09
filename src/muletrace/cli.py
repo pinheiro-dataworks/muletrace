@@ -190,6 +190,25 @@ def _models_delay_sweep(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _models_transaction_check(args: argparse.Namespace, settings: Settings) -> int:
+    import polars as pl  # noqa: PLC0415
+
+    from muletrace.models.transaction_level import run_transaction_check  # noqa: PLC0415
+
+    config = _experiment_config()
+    results = {}
+    for name in args.datasets:
+        folder = settings.processed_dir / name
+        results[name] = run_transaction_check(
+            pl.read_parquet(folder / "transactions.parquet"),
+            pl.read_parquet(folder / "accounts.parquet"),
+            config.training,
+            name,
+        )
+    _write_generated("transaction_level_check.yaml", results, "muletrace models transaction-check")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser with every command group."""
     parser = argparse.ArgumentParser(prog="muletrace", description=__doc__)
@@ -221,6 +240,11 @@ def build_parser() -> argparse.ArgumentParser:
     sweep.add_argument("--datasets", nargs="+", default=["HI-Small"], choices=DATASETS)
     sweep.add_argument("--delays", nargs="+", type=int, default=[0, 12, 24, 48, 72])
     sweep.set_defaults(handler=_models_delay_sweep)
+    check = model_commands.add_parser(
+        "transaction-check", help="Reproduce AMLworld's transaction-level task"
+    )
+    check.add_argument("--datasets", nargs="+", default=list(DATASETS), choices=DATASETS)
+    check.set_defaults(handler=_models_transaction_check)
 
     feature_group = groups.add_parser("features", help="Point-in-time feature snapshots")
     feature_commands = feature_group.add_subparsers(dest="command", required=True)
