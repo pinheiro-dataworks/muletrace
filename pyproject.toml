@@ -15,7 +15,10 @@ classifiers = [
 # Runtime dependencies are kept to what the serving, monitoring and copilot
 # Lambdas need, so the container image stays small. Batch-only libraries live
 # in the `pipeline` extra.
-dependencies = []
+dependencies = [
+    "numpy>=2.1",
+    "pydantic>=2.9",
+]
 
 [project.optional-dependencies]
 pipeline = [
