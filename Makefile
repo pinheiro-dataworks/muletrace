@@ -46,3 +46,20 @@ quality:  ## Complexity, dead code, dependency and security checks
 
 .PHONY: check
 check: lint typecheck test quality  ## Every gate CI runs
+
+# ------------------------------------------------------------------ data and models
+.PHONY: data
+data:  ## Download missing files, verify checksums, prepare Parquet, add the Pix layer, profile
+	$(UV) run muletrace data download
+	$(UV) run muletrace data verify
+	$(UV) run muletrace data prepare
+	$(UV) run muletrace data simulate-pix
+	$(UV) run muletrace data profile
+
+.PHONY: baseline
+baseline:  ## Score the rules baseline on the temporal hold-out
+	$(UV) run muletrace models rules
+
+.PHONY: notebooks
+notebooks:  ## Re-execute the notebooks in place (outputs are committed)
+	cd notebooks && $(UV) run jupyter nbconvert --to notebook --execute --inplace 01_eda.ipynb

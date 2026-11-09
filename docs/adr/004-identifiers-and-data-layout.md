@@ -19,8 +19,9 @@ file (`10`), and contains a few byte-identical transactions (9 in HI-Small, 8 in
   `account_key` is `"<bank_id>:<account_number>"`, and its compact `account_id` (`UInt32`) is the
   rank of the key in lexicographic order, so the mapping does not depend on file order.
 - Each table is one zstd-compressed Parquet file, sorted by `(timestamp, tx_id)`. At this size
-  (131 MB for HI-Small, 180 MB for LI-Small on disk) Parquet row-group statistics already give
-  predicate pushdown on time, and date partitioning would only add small files.
+  (137 MB for HI-Small and 189 MB for LI-Small on disk, all core tables), Parquet row-group
+  statistics already give predicate pushdown on time, and date partitioning would only add
+  small files.
 - Amounts stay `Float64` (values reach 1e12 and the checker compares cents); currencies,
   payment formats, entity types and typologies are enums; identifiers are `UInt32`.
 

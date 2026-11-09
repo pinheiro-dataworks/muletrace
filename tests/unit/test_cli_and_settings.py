@@ -91,3 +91,10 @@ def test_cli_simulate_pix_after_prepare(workspace: Path) -> None:
     profile = yaml.safe_load((workspace / "docs/generated/data_profile.yaml").read_text("utf-8"))
     assert profile["HI-Small"]["transactions"] == 7
     assert profile["HI-Small"]["pattern_share_of_laundering"] == 1.0
+    assert cli.main(["models", "rules", "--datasets", "HI-Small"]) == 0
+    rules = yaml.safe_load((workspace / "docs/generated/rules_baseline.yaml").read_text("utf-8"))
+    assert set(rules["HI-Small"]["snapshots"]) == {
+        "2022-09-07T00:00:00",
+        "2022-09-08T00:00:00",
+        "2022-09-09T00:00:00",
+    }

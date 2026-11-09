@@ -10,6 +10,7 @@ change its decision; a later record supersedes it instead.
 | [003](003-no-agentcore-in-v1.md) | No Bedrock AgentCore in v1 | Accepted |
 | [004](004-identifiers-and-data-layout.md) | Identifiers and data layout | Accepted |
 | [005](005-exchange-rates-from-the-data.md) | Exchange rates inferred from the data | Accepted |
+| [006](006-target-and-validation-design.md) | Target definition and validation design | Accepted |
 
 Template: *Context* (what forces the decision), *Decision* (what we do), *Consequences*
 (what gets easier, what gets harder, what we would revisit).
