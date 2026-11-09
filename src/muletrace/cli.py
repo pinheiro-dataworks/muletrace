@@ -16,6 +16,7 @@ from typing import Any
 import yaml
 
 from muletrace.data.amlworld_loader import DATASETS, RawDataset
+from muletrace.perf import measure
 from muletrace.settings import Settings, load_env_file
 
 logger = logging.getLogger("muletrace")
@@ -152,7 +153,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = build_parser().parse_args(argv)
     handler: Handler = args.handler
-    return handler(args, Settings.from_env())
+    with measure() as measurement:
+        status = handler(args, Settings.from_env())
+    logger.info(
+        "%s %s finished in %.1f s, peak memory %.0f MiB",
+        args.group,
+        args.command,
+        measurement.seconds,
+        measurement.peak_memory_mb,
+    )
+    return status
 
 
 if __name__ == "__main__":
