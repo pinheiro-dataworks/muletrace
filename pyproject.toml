@@ -29,6 +29,9 @@ pipeline = [
     "scikit-learn>=1.6",
     "scipy>=1.14",
 ]
+tracking = [
+    "mlflow-skinny>=3.0",
+]
 
 [project.scripts]
 muletrace = "muletrace.cli:main"
