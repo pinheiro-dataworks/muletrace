@@ -14,7 +14,7 @@ from muletrace.data.prepare import prepare_dataset
 from muletrace.features.config import FeatureConfig
 from muletrace.models.artifact import load_artifact
 from muletrace.models.evaluate import BootstrapConfig, EvaluationConfig
-from muletrace.models.experiment import ExperimentConfig, run_experiment
+from muletrace.models.experiment import ExperimentConfig, run_delay_sweep, run_experiment
 from muletrace.models.rules_baseline import RulesConfig
 from muletrace.models.train import TrainingConfig
 from tests.fixtures.world import generate_world
@@ -75,3 +75,16 @@ def test_run_experiment_writes_a_full_report_and_artifact(
     graph = predictions.filter(pl.col("model") == "lgbm_tabular_graph")
     assert np.all((graph["probability"].to_numpy() >= 0) & (graph["probability"].to_numpy() <= 1))
     assert (tmp_path / "experiments" / "backtest-HI-Small.jsonl").is_file()
+
+
+def test_delay_sweep_reports_every_delay(
+    world: Path, config: ExperimentConfig, tmp_path: Path
+) -> None:
+    params = {"lgbm_tabular": {"num_leaves": 4}, "lgbm_tabular_graph": {"num_leaves": 4}}
+    result = run_delay_sweep(world, tmp_path, config, (0, 24), params)
+    assert set(result["delays"]) == {"0h", "24h"}
+    assert (
+        result["delays"]["0h"]["already_active_share"]
+        <= result["delays"]["24h"]["already_active_share"]
+    )
+    assert "lgbm_tabular_graph" in result["delays"]["24h"]["recall"]

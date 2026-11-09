@@ -173,6 +173,23 @@ def _models_backtest(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _models_delay_sweep(args: argparse.Namespace, settings: Settings) -> int:
+    from muletrace.models.experiment import run_delay_sweep  # noqa: PLC0415
+
+    config = _experiment_config()
+    for name in args.datasets:
+        backtest = yaml.safe_load((GENERATED_DIR / f"backtest_{name}.yaml").read_text("utf-8"))
+        result = run_delay_sweep(
+            settings.processed_dir / name,
+            settings.artifacts_dir,
+            config,
+            tuple(args.delays),
+            backtest["chosen_params"],
+        )
+        _write_generated(f"delay_sweep_{name}.yaml", result, "muletrace models delay-sweep")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser with every command group."""
     parser = argparse.ArgumentParser(prog="muletrace", description=__doc__)
@@ -200,6 +217,10 @@ def build_parser() -> argparse.ArgumentParser:
     backtest = model_commands.add_parser("backtest", help="Run the model ladder backtest")
     backtest.add_argument("--datasets", nargs="+", default=list(DATASETS), choices=DATASETS)
     backtest.set_defaults(handler=_models_backtest)
+    sweep = model_commands.add_parser("delay-sweep", help="Label-delay sensitivity on the hold-out")
+    sweep.add_argument("--datasets", nargs="+", default=["HI-Small"], choices=DATASETS)
+    sweep.add_argument("--delays", nargs="+", type=int, default=[0, 12, 24, 48, 72])
+    sweep.set_defaults(handler=_models_delay_sweep)
 
     feature_group = groups.add_parser("features", help="Point-in-time feature snapshots")
     feature_commands = feature_group.add_subparsers(dest="command", required=True)

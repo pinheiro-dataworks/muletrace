@@ -142,3 +142,56 @@ def run_experiment(
         ),
         "feature_importance_lgbm_tabular_graph": result.importance,
     }
+
+
+def run_delay_sweep(
+    dataset_dir: Path,
+    artifacts_dir: Path,
+    config: ExperimentConfig,
+    delays_hours: tuple[int, ...],
+    chosen_params: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Re-run both LightGBM models on the hold-out for several confirmation delays.
+
+    The horizon stays fixed. Each delay changes who is already confirmed (the population), when
+    labels become known (training) and which neighbours count as confirmed (graph features).
+    Hyper-parameters are the ones chosen in the main backtest, so only the delay varies.
+    """
+    evaluation = config.evaluation
+    times = snapshot_times(
+        evaluation.first_snapshot, evaluation.last_snapshot, evaluation.snapshot_step
+    )
+    keys = pl.read_parquet(dataset_dir / "pix_layer" / "pix_keys.parquet")
+    results: dict[str, Any] = {"hyper_parameters": chosen_params, "delays": {}}
+    for delay in delays_hours:
+        labels = config.labels.model_copy(update={"confirmation_delay_hours": delay})
+        snapshots = build_snapshots(
+            dataset_dir, artifacts_dir / "features", times, labels, config.features
+        )
+        folds = make_folds(times, evaluation.test_snapshots, labels.horizon)
+        backtest = Backtest(
+            add_key_age(snapshots, keys),
+            rules=config.rules,
+            features=config.features,
+            training=config.training,
+            headline_budget=evaluation.headline_alert_budget_per_10k,
+            run_logger=RunLogger(f"delay-sweep-{dataset_dir.name}", artifacts_dir / "experiments"),
+            include_rules=False,
+            preset_params=chosen_params,
+        )
+        predictions = backtest.run(folds, importance_from=()).predictions
+        positives = predictions.filter((pl.col("model") == "lgbm_tabular_graph") & pl.col("label"))
+        results["delays"][f"{delay}h"] = {
+            "positives": positives.height,
+            "already_active_share": round(
+                positives.select(pl.col("already_active").cast(pl.Float64).mean()).item() or 0.0,
+                4,
+            ),
+            **report.bootstrap_section(
+                predictions,
+                list(LGBM_MODELS),
+                [("lgbm_tabular_graph", "lgbm_tabular")],
+                evaluation,
+            ),
+        }
+    return results
