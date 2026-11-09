@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Reject AI attribution trailers in commit messages.
+# Authorship of this repository stays with its owner; see README "Authorship".
+set -euo pipefail
+
+if grep -Eiq '^co-authored-by:|generated with \[?claude|claude\.ai/code|noreply@anthropic\.com' "$1"; then
+  echo "Commit rejected: remove AI attribution lines. Authorship stays with the repo owner." >&2
+  exit 1
+fi
