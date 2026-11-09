@@ -1,0 +1,9 @@
+MuleTrace
+Copyright 2026 Renan Pinheiro
+
+This product's source code is licensed under the Apache License, Version 2.0.
+
+The repository does not redistribute the IBM AMLworld dataset. The dataset is
+downloaded by the user from Kaggle and is licensed by its providers under the
+Community Data License Agreement - Sharing, Version 1.0 (CDLA-Sharing-1.0).
+A copy of that licence is kept in data/LICENSES/.

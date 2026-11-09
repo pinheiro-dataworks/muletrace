@@ -1,0 +1,123 @@
+[project]
+name = "muletrace"
+version = "0.0.1"
+description = "Receive-side mule-account defence for instant payments: point-in-time graph risk scoring, fund-flow tracing and an evidence-grounded investigation copilot."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Renan Pinheiro" }]
+requires-python = ">=3.12,<3.14"
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+# Runtime dependencies are kept to what the serving, monitoring and copilot
+# Lambdas need, so the container image stays small. Batch-only libraries live
+# in the `pipeline` extra.
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "hypothesis>=6.120",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-PyYAML>=6.0",
+    "pre-commit>=4.0",
+    "radon>=6.0",
+    "xenon>=0.9",
+    "vulture>=2.14",
+    "deptry>=0.21",
+    "bandit>=1.8",
+    "pip-audit>=2.7",
+]
+notebooks = [
+    "jupyter>=1.1",
+    "nbconvert>=7.16",
+    "matplotlib>=3.9",
+]
+
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/muletrace"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "B", "UP", "SIM", "C4", "PT", "RUF", "N",
+    "S", "PL", "PERF", "NPY", "PD", "D", "ANN", "TID", "RET", "ARG",
+]
+ignore = [
+    "D105", "D107",          # magic methods and __init__ are documented on the class
+    "D203", "D213",          # pick one docstring layout (D211, D212)
+    "PLR0913",               # explicit keyword arguments are preferred over config bags
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D", "ANN", "PLR2004", "PLR0913"]
+"evals/**" = ["D100", "D103"]
+"scripts/**" = ["D103", "T201"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+mypy_path = "src"
+packages = ["muletrace"]
+
+[[tool.mypy.overrides]]
+module = ["lightgbm.*", "sklearn.*", "scipy.*", "mlflow.*", "boto3.*", "botocore.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: tests that touch the local filesystem in larger volumes",
+    "perf: micro-benchmarks, excluded from the default run",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["muletrace"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+# ---------------------------------------------------------------- deptry
+[tool.deptry]
+known_first_party = ["muletrace"]
+
+# ---------------------------------------------------------------- vulture
+[tool.vulture]
+paths = ["src"]
+min_confidence = 80
+
+# ---------------------------------------------------------------- bandit
+[tool.bandit]
+exclude_dirs = ["tests"]

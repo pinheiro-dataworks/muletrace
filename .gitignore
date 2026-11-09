@@ -1,0 +1,51 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+
+# --- Tooling caches ---
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.ipynb_checkpoints/
+
+# --- Data: raw and derived files never go into Git ---
+# AMLworld is downloaded with `make data`; see data/MANIFEST.yaml.
+dataset/
+data/raw/
+data/interim/
+data/processed/
+data/external/
+
+# --- Experiment and build outputs ---
+artifacts/
+mlruns/
+cdk.out/
+node_modules/
+demo/site/
+
+# --- Local configuration and secrets ---
+.env
+.env.*
+!.env.example
+kaggle.json
+
+# --- Assistant and editor configuration stays out of the repository ---
+.claude/
+CLAUDE.md
+AGENTS.md
+.cursor/
+.vscode/
+.idea/
+
+# --- Private planning notes ---
+MuleTrace_Build_Guide.md
+logo_renan_ds.png
