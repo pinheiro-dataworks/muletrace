@@ -103,3 +103,14 @@ def test_cli_simulate_pix_after_prepare(workspace: Path) -> None:
     assert cli.main(["features", "build", "--datasets", "HI-Small"]) == 0
     cached = list((workspace / "artifacts" / "features").glob("HI-Small-*/*.parquet"))
     assert len(cached) == 8
+
+
+def test_backtest_command_writes_its_report(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from muletrace.models import experiment  # noqa: PLC0415
+
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    monkeypatch.setattr(experiment, "run_experiment", lambda *_: {"chosen_params": {}})
+    assert cli.main(["models", "backtest", "--datasets", "HI-Small"]) == 0
+    assert (workspace / "docs/generated/backtest_HI-Small.yaml").is_file()
