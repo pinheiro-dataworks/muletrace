@@ -94,7 +94,9 @@ def write_manifest(files: list[Path], manifest_path: Path, generated_on: date) -
         "files": [describe_file(path).as_dict() for path in sorted(files)],
     }
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    manifest_path.write_text(
+        yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n"
+    )
     return manifest
 
 

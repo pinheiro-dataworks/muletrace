@@ -61,9 +61,11 @@ def save_artifact(
     """Write the three artefact files; the booster keeps only its best iteration."""
     folder.mkdir(parents=True, exist_ok=True)
     booster.save_model(str(folder / MODEL_FILE), num_iteration=booster.best_iteration or None)
-    (folder / CALIBRATOR_FILE).write_text(json.dumps(calibrator.to_dict()), encoding="utf-8")
+    (folder / CALIBRATOR_FILE).write_text(
+        json.dumps(calibrator.to_dict()), encoding="utf-8", newline="\n"
+    )
     (folder / METADATA_FILE).write_text(
-        json.dumps(metadata, indent=2, default=str), encoding="utf-8"
+        json.dumps(metadata, indent=2, default=str), encoding="utf-8", newline="\n"
     )
 
 
