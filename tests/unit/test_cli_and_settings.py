@@ -21,6 +21,7 @@ def workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("MULETRACE_RAW_DIR", str(tmp_path / "raw"))
     monkeypatch.setenv("MULETRACE_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("MULETRACE_ARTIFACTS_DIR", str(tmp_path / "artifacts"))
     return tmp_path
 
 
@@ -45,6 +46,7 @@ def test_settings_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.processed_dir == Path("data/processed")
     assert settings.manifest_path == Path("data/MANIFEST.yaml")
     assert settings.artifacts_dir == Path("artifacts")
+    assert settings.features_dir == Path("artifacts/features")
 
 
 def test_cli_manifest_verify_and_prepare(workspace: Path) -> None:
@@ -98,3 +100,6 @@ def test_cli_simulate_pix_after_prepare(workspace: Path) -> None:
         "2022-09-08T00:00:00",
         "2022-09-09T00:00:00",
     }
+    assert cli.main(["features", "build", "--datasets", "HI-Small"]) == 0
+    cached = list((workspace / "artifacts" / "features").glob("HI-Small-*/*.parquet"))
+    assert len(cached) == 8

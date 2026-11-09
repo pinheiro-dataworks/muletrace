@@ -21,8 +21,11 @@ figures below come from.
 | Pix layer, both datasets | `muletrace data simulate-pix` | 3.8 s | 1,657 MiB |
 | Dataset profile | `muletrace data profile` | 1.2 s | 1,673 MiB |
 | Rules baseline, 3 snapshots × 2 datasets | `muletrace models rules` | 5.2 s | 1,349 MiB |
+| Feature build, HI-Small, 8 snapshots | `muletrace features build --datasets HI-Small` | 28.2 s | 2,495 MiB |
+| Feature build, LI-Small, 8 snapshots | `muletrace features build --datasets LI-Small` | 37.2 s | 3,373 MiB |
 
-Measured on 2026-11-09 (UTC), warm file cache, one run each.
+Measured on 2026-11-09 (UTC), warm file cache, one run each. Feature builds start from an
+empty snapshot cache.
 
 **Storage** (decimal megabytes). The typed Parquet tables take 136.6 MB (HI-Small) and
 188.6 MB (LI-Small) on disk, against 509.7 MB and 697.7 MB for the source CSV files
@@ -34,7 +37,7 @@ enums, and only amounts stay `Float64` (see ADR-004).
 
 | Metric | Target | Status |
 |---|---|---|
-| Feature build, HI-Small, laptop | Under 10 minutes, under 8 GB RAM | Measured in week 2 |
+| Feature build, HI-Small, laptop | Under 10 minutes, under 8 GB RAM | **Met**: 28.2 s, 2,495 MiB |
 | Score lookup, warm Lambda | p99 under 250 ms | Measured in week 3 |
 | Lambda image | Under 300 MB | Measured in week 3 |
 | Copilot | p95 under 30 s and under US$0.01 per case | Measured in week 4 |
