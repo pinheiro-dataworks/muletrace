@@ -25,6 +25,7 @@ pipeline = [
     "pandera[polars]>=0.30",
     "polars>=2.0",
     "pyyaml>=6.0.2",
+    "scikit-learn>=1.6",
 ]
 
 [project.scripts]
