@@ -1,0 +1,14 @@
+# Target definition for the mule-risk score.
+#
+# A receiving account becomes a mule at the time of its first laundering inflow
+# (self-transfers excluded). Confirmation arrives `confirmation_delay_hours` later,
+# which models the time a dispute, a DICT marking or an internal investigation
+# takes. The score at as-of time t predicts confirmation in (t, t + horizon].
+# Both values are assumptions (A3 and A4 in docs/business_case.md).
+
+confirmation_delay_hours: 24
+horizon_hours: 48
+
+# Accounts scored at time t: received at least one transfer in this window
+# before t and are not already confirmed as mules at t.
+population_lookback_days: 7
