@@ -1381,6 +1381,7 @@ source = { editable = "." }
 pipeline = [
     { name = "pandera", extra = ["polars"] },
     { name = "polars" },
+    { name = "pyyaml" },
 ]
 
 [package.dev-dependencies]
@@ -1409,6 +1410,7 @@ notebooks = [
 requires-dist = [
     { name = "pandera", extras = ["polars"], marker = "extra == 'pipeline'", specifier = ">=0.30" },
     { name = "polars", marker = "extra == 'pipeline'", specifier = ">=2.0" },
+    { name = "pyyaml", marker = "extra == 'pipeline'", specifier = ">=6.0.2" },
 ]
 provides-extras = ["pipeline"]
 
