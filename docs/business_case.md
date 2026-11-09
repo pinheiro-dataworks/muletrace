@@ -15,8 +15,10 @@ Instant Payments Regulation; MuleTrace maps to those regimes but implements none
 
 All figures below come from the Banco Central do Brasil (BCB) open-data service
 *Estatísticas de Fraude no Pix (MED)* (endpoint `Pix_DadosAbertos/EstatisticasFraudesPix`),
-accessed on 2026-11-08, summed over the twelve complete months from October 2025 to
-September 2026. MED (*Mecanismo Especial de Devolução*) is the Pix special return mechanism
+accessed on 2026-11-09 (UTC), summed over the twelve complete months from October 2025 to
+September 2026. The figures are frozen in
+[`configs/calibration/bcb_public_figures.yaml`](../configs/calibration/bcb_public_figures.yaml)
+by `scripts/fetch_bcb_calibration.py`. MED (*Mecanismo Especial de Devolução*) is the Pix special return mechanism
 used when a payer reports fraud.
 
 | Measure (Oct 2025 – Sep 2026) | Value |
