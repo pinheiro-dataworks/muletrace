@@ -87,7 +87,7 @@ def test_cli_simulate_pix_after_prepare(workspace: Path) -> None:
     assert cli.main(["data", "simulate-pix", "--datasets", "HI-Small"]) == 0
     assert (workspace / "data/processed/HI-Small/pix_layer/calibration_report.yaml").is_file()
     assert (workspace / "docs/generated/pix_layer_calibration.yaml").is_file()
-    report = yaml.safe_load(
-        (workspace / "docs/generated/pix_layer_calibration.yaml").read_text("utf-8")
-    )
-    assert report["HI-Small"]["seed"] == 20261108
+    assert cli.main(["data", "profile", "--datasets", "HI-Small"]) == 0
+    profile = yaml.safe_load((workspace / "docs/generated/data_profile.yaml").read_text("utf-8"))
+    assert profile["HI-Small"]["transactions"] == 7
+    assert profile["HI-Small"]["pattern_share_of_laundering"] == 1.0

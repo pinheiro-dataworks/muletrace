@@ -22,6 +22,8 @@ logger = logging.getLogger("muletrace")
 
 Handler = Callable[[argparse.Namespace, Settings], int]
 
+# AMLworld's documented primary period for the Small datasets is 1-10 September 2022.
+PRIMARY_PERIOD_END = "2022-09-11"
 GENERATED_DIR = Path("docs/generated")
 
 
@@ -87,6 +89,17 @@ def _data_simulate_pix(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _data_profile(args: argparse.Namespace, settings: Settings) -> int:
+    from muletrace.data.profile import dataset_profile  # noqa: PLC0415
+
+    profiles = {
+        name: dataset_profile(settings.processed_dir / name, primary_end=PRIMARY_PERIOD_END)
+        for name in args.datasets
+    }
+    _write_generated("data_profile.yaml", profiles, "muletrace data profile")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser with every command group."""
     parser = argparse.ArgumentParser(prog="muletrace", description=__doc__)
@@ -100,6 +113,7 @@ def build_parser() -> argparse.ArgumentParser:
         ("verify", _data_verify, "Check raw files against data/MANIFEST.yaml"),
         ("prepare", _data_prepare, "Convert raw files to validated Parquet tables"),
         ("simulate-pix", _data_simulate_pix, "Add the seeded Pix layer to prepared data"),
+        ("profile", _data_profile, "Write headline statistics to docs/generated"),
     ):
         command = data_commands.add_parser(name, help=help_text)
         command.add_argument("--datasets", nargs="+", default=list(DATASETS), choices=DATASETS)
