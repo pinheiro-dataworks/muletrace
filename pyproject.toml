@@ -16,6 +16,7 @@ classifiers = [
 # Lambdas need, so the container image stays small. Batch-only libraries live
 # in the `pipeline` extra.
 dependencies = [
+    "numpy>=2.1",
     "pydantic>=2.9",
 ]
 

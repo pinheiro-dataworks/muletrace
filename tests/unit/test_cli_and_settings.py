@@ -1,14 +1,18 @@
 import os
+import shutil
 from pathlib import Path
 
 import polars as pl
 import pytest
+import yaml
 
 from muletrace import cli
 from muletrace.data import download
 from muletrace.data.amlworld_loader import RawDataset
 from muletrace.settings import Settings, load_env_file
 from tests.fixtures.amlworld import write_amlworld_files
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 @pytest.fixture
@@ -75,3 +79,15 @@ def test_download_requires_the_kaggle_cli(tmp_path: Path, monkeypatch: pytest.Mo
     monkeypatch.setattr(download.shutil, "which", lambda _: None)
     with pytest.raises(download.KaggleCliNotFoundError):
         download.download_missing([RawDataset("LI-Small", tmp_path)])
+
+
+def test_cli_simulate_pix_after_prepare(workspace: Path) -> None:
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    assert cli.main(["data", "prepare", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["data", "simulate-pix", "--datasets", "HI-Small"]) == 0
+    assert (workspace / "data/processed/HI-Small/pix_layer/calibration_report.yaml").is_file()
+    assert (workspace / "docs/generated/pix_layer_calibration.yaml").is_file()
+    report = yaml.safe_load(
+        (workspace / "docs/generated/pix_layer_calibration.yaml").read_text("utf-8")
+    )
+    assert report["HI-Small"]["seed"] == 20261108
