@@ -44,6 +44,11 @@ class Settings:
         return self.data_dir / "processed"
 
     @property
+    def features_dir(self) -> Path:
+        """Cache of point-in-time feature snapshots."""
+        return self.artifacts_dir / "features"
+
+    @property
     def manifest_path(self) -> Path:
         """Location of the checksum manifest that is committed to Git."""
         return self.data_dir / "MANIFEST.yaml"

@@ -118,6 +118,28 @@ def _models_rules(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _features_build(args: argparse.Namespace, settings: Settings) -> int:
+    from muletrace.config import CONFIG_DIR, load_config  # noqa: PLC0415
+    from muletrace.data.labels import LabelConfig  # noqa: PLC0415
+    from muletrace.features.asof import snapshot_times  # noqa: PLC0415
+    from muletrace.features.build import build_snapshots  # noqa: PLC0415
+    from muletrace.features.config import FeatureConfig  # noqa: PLC0415
+    from muletrace.models.evaluate import EvaluationConfig  # noqa: PLC0415
+
+    labels = load_config(LabelConfig, CONFIG_DIR / "labels.yaml")
+    features = load_config(FeatureConfig, CONFIG_DIR / "features.yaml")
+    evaluation = load_config(EvaluationConfig, CONFIG_DIR / "evaluation.yaml")
+    times = snapshot_times(
+        evaluation.first_snapshot, evaluation.last_snapshot, evaluation.snapshot_step
+    )
+    for name in args.datasets:
+        snapshots = build_snapshots(
+            settings.processed_dir / name, settings.features_dir, times, labels, features
+        )
+        logger.info("%s: %d snapshot rows", name, snapshots.height)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser with every command group."""
     parser = argparse.ArgumentParser(prog="muletrace", description=__doc__)
@@ -142,6 +164,12 @@ def build_parser() -> argparse.ArgumentParser:
     rules = model_commands.add_parser("rules", help="Score the rules baseline on the hold-out")
     rules.add_argument("--datasets", nargs="+", default=list(DATASETS), choices=DATASETS)
     rules.set_defaults(handler=_models_rules)
+
+    feature_group = groups.add_parser("features", help="Point-in-time feature snapshots")
+    feature_commands = feature_group.add_subparsers(dest="command", required=True)
+    build = feature_commands.add_parser("build", help="Build and cache every snapshot")
+    build.add_argument("--datasets", nargs="+", default=list(DATASETS), choices=DATASETS)
+    build.set_defaults(handler=_features_build)
     return parser
 
 
