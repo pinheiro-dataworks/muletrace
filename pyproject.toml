@@ -19,6 +19,7 @@ dependencies = []
 
 [project.optional-dependencies]
 pipeline = [
+    "pandera[polars]>=0.30",
     "polars>=2.0",
 ]
 
