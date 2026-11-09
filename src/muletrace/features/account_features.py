@@ -13,6 +13,9 @@ from datetime import datetime, timedelta
 import polars as pl
 
 from muletrace.features.asof import history_before
+from muletrace.features.config import FeatureConfig, NightWindow
+
+_FAST_FORWARD_HOURS = 24
 
 
 def _hours(window: timedelta) -> int:
@@ -74,4 +77,81 @@ def account_age_hours(first_seen_table: pl.DataFrame, as_of: datetime) -> pl.Dat
     return first_seen_table.filter(pl.col("first_seen_at") < as_of).select(
         "account_id",
         account_age_hours=(pl.lit(as_of) - pl.col("first_seen_at")).dt.total_minutes() / 60,
+    )
+
+
+def _is_night(night: NightWindow) -> pl.Expr:
+    hour = pl.col("timestamp").dt.hour()
+    return (hour >= night.start_hour) | (hour < night.end_hour)
+
+
+def inflow_details(
+    transactions: pl.LazyFrame,
+    account_banks: pl.DataFrame,
+    as_of: datetime,
+    config: FeatureConfig,
+) -> pl.LazyFrame:
+    """Shape of the recent inflow: timing, amounts, formats and counterparties.
+
+    All shares are over the account's non-self inflows in the detail window, so they are null
+    for accounts without inflow there.
+    """
+    structuring = config.structuring
+    banks = account_banks.lazy().select("account_id", "bank_id")
+    lower = structuring.threshold_usd * (1 - structuring.just_below_share)
+    inflows = (
+        history_before(transactions, as_of, config.detail_window)
+        .filter(~pl.col("is_self_transfer"))
+        .join(banks.rename({"account_id": "sender_id", "bank_id": "sender_bank"}), on="sender_id")
+        .join(
+            banks.rename({"account_id": "receiver_id", "bank_id": "receiver_bank"}),
+            on="receiver_id",
+        )
+    )
+    return inflows.group_by(account_id="receiver_id").agg(
+        night_inflow_share=_is_night(config.night).mean(),
+        round_amount_inflow_share=(
+            (pl.col("amount_paid") % structuring.round_amount_unit) == 0
+        ).mean(),
+        just_below_threshold_share=pl.col("amount_paid_usd")
+        .is_between(lower, structuring.threshold_usd, closed="left")
+        .mean(),
+        ach_inflow_share=(pl.col("payment_format").cast(pl.String) == "ACH").mean(),
+        distinct_inflow_formats=pl.col("payment_format").n_unique(),
+        cross_bank_inflow_share=(pl.col("sender_bank") != pl.col("receiver_bank")).mean(),
+        max_inflow_usd=pl.col("amount_paid_usd").max(),
+    )
+
+
+def forwarding_speed(
+    transactions: pl.LazyFrame, as_of: datetime, window: timedelta
+) -> pl.LazyFrame:
+    """How fast recent inflows are followed by an outgoing transfer, before ``as_of``.
+
+    For every inflow in the window, the next outgoing transfer of the same account that
+    happened before ``as_of`` is found; inflows without one count as not forwarded.
+    """
+    history = history_before(transactions, as_of).filter(~pl.col("is_self_transfer"))
+    inflows = (
+        history.filter(pl.col("timestamp") >= as_of - window)
+        .select(account_id="receiver_id", received_at="timestamp")
+        .sort("received_at")
+    )
+    outflows = history.select(account_id="sender_id", forwarded_at="timestamp").sort("forwarded_at")
+    hours = (pl.col("forwarded_at") - pl.col("received_at")).dt.total_minutes() / 60
+    return (
+        inflows.join_asof(
+            outflows,
+            left_on="received_at",
+            right_on="forwarded_at",
+            by="account_id",
+            strategy="forward",
+            # Both sides are sorted on the time key globally, hence within every account.
+            check_sortedness=False,
+        )
+        .group_by("account_id")
+        .agg(
+            median_hours_to_forward=hours.median(),
+            forwarded_within_24h_share=(hours <= _FAST_FORWARD_HOURS).fill_null(value=False).mean(),
+        )
     )
