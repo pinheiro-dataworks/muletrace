@@ -100,6 +100,23 @@ def _data_profile(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _models_rules(args: argparse.Namespace, settings: Settings) -> int:
+    from muletrace.config import CONFIG_DIR, load_config  # noqa: PLC0415
+    from muletrace.data.labels import LabelConfig  # noqa: PLC0415
+    from muletrace.models.evaluate import EvaluationConfig  # noqa: PLC0415
+    from muletrace.models.rules_baseline import RulesConfig, evaluate_rules  # noqa: PLC0415
+
+    labels = load_config(LabelConfig, CONFIG_DIR / "labels.yaml")
+    rules = load_config(RulesConfig, CONFIG_DIR / "rules.yaml")
+    evaluation = load_config(EvaluationConfig, CONFIG_DIR / "evaluation.yaml")
+    results = {
+        name: evaluate_rules(settings.processed_dir / name, labels, rules, evaluation)
+        for name in args.datasets
+    }
+    _write_generated("rules_baseline.yaml", results, "muletrace models rules")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser with every command group."""
     parser = argparse.ArgumentParser(prog="muletrace", description=__doc__)
@@ -118,6 +135,12 @@ def build_parser() -> argparse.ArgumentParser:
         command = data_commands.add_parser(name, help=help_text)
         command.add_argument("--datasets", nargs="+", default=list(DATASETS), choices=DATASETS)
         command.set_defaults(handler=handler)
+
+    models = groups.add_parser("models", help="Baselines, training and evaluation")
+    model_commands = models.add_subparsers(dest="command", required=True)
+    rules = model_commands.add_parser("rules", help="Score the rules baseline on the hold-out")
+    rules.add_argument("--datasets", nargs="+", default=list(DATASETS), choices=DATASETS)
+    rules.set_defaults(handler=_models_rules)
     return parser
 
 
