@@ -55,6 +55,11 @@ dev = [
     "bandit>=1.8",
     "pip-audit>=2.7",
 ]
+infra = [
+    "aws-cdk-lib>=2.170",
+    "cdk-nag>=2.34,<3",
+    "constructs>=10.4",
+]
 notebooks = [
     "jupyter>=1.1",
     "nbconvert>=7.16",
