@@ -25,9 +25,7 @@ from muletrace.models.calibration import IsotonicCalibrator
 if TYPE_CHECKING:  # Polars is a batch dependency; the Lambda image does not ship it.
     import polars as pl
 
-MODEL_FILE = "model.txt"
-CALIBRATOR_FILE = "calibrator.json"
-METADATA_FILE = "metadata.json"
+from muletrace.models.artifact_files import CALIBRATOR_FILE, METADATA_FILE, MODEL_FILE
 
 
 @dataclass(frozen=True)

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from muletrace.models.artifact_files import ARTIFACT_FILES
 from muletrace.serving import model_source
 from muletrace.serving.model_source import download_artifact, resolve_model_dir, split_s3_uri
 
@@ -32,7 +33,7 @@ def test_split_rejects_bad_uris(uri: str) -> None:
 def test_download_and_resolve(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     s3 = _FakeS3()
     folder = download_artifact("s3://bucket/models/v1", tmp_path / "a", s3)
-    assert sorted(path.name for path in folder.iterdir()) == sorted(model_source.ARTIFACT_FILES)
+    assert sorted(path.name for path in folder.iterdir()) == sorted(ARTIFACT_FILES)
     assert s3.calls[0] == ("bucket", "models/v1/model.txt")
     monkeypatch.setattr(model_source, "LOCAL_CACHE", tmp_path / "cache")
     assert resolve_model_dir({"MODEL_URI": "s3://bucket"}, _FakeS3()) == tmp_path / "cache"

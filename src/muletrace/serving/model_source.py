@@ -12,9 +12,8 @@ import os
 from pathlib import Path
 from typing import Any
 
-from muletrace.models.artifact import CALIBRATOR_FILE, METADATA_FILE, MODEL_FILE
+from muletrace.models.artifact_files import ARTIFACT_FILES
 
-ARTIFACT_FILES = (MODEL_FILE, CALIBRATOR_FILE, METADATA_FILE)
 # /tmp is the only writable path in Lambda and is private to each execution environment.
 LOCAL_CACHE = Path("/tmp/muletrace-model")  # noqa: S108  # nosec B108
 

@@ -82,3 +82,19 @@ def test_approval_publishes_artifact_and_repoints_the_scorer(tmp_path: Path) -> 
         "FEATURE_TABLE": "features",
         "MODEL_URI": "s3://data/models/approved/3",
     }
+
+
+def test_promotion_does_not_import_heavy_libraries() -> None:
+    """The promotion Lambda runs on the plain Python runtime: no LightGBM, NumPy or Polars."""
+    import subprocess  # noqa: PLC0415
+    import sys  # noqa: PLC0415
+
+    code = (
+        "import sys, muletrace.ops.promote; "
+        "heavy = {'lightgbm', 'numpy', 'polars', 'pydantic', 'yaml'} & set(sys.modules); "
+        "print(sorted(heavy))"
+    )
+    output = subprocess.run(  # noqa: S603
+        [sys.executable, "-c", code], capture_output=True, text=True, check=True
+    ).stdout.strip()
+    assert output == "[]"

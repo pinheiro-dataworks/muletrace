@@ -19,7 +19,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from muletrace.serving.model_source import ARTIFACT_FILES, split_s3_uri
+from muletrace.models.artifact_files import ARTIFACT_FILES
+from muletrace.serving.model_source import split_s3_uri
 
 
 def approved_package_arn(event: dict[str, Any]) -> str | None:
