@@ -1,0 +1,13 @@
+{
+  "app": "uv run --group infra python infra/app.py",
+  "context": {
+    "env_name": "dev",
+    "deployment_role_name": "muletrace-github-deploy",
+    "@aws-cdk/core:defaultCrossStackReferences": "strong"
+  },
+  "watch": {
+    "exclude": [
+      "**"
+    ]
+  }
+}

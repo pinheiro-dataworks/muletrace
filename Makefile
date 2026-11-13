@@ -78,6 +78,23 @@ image:  ## Build the arm64 scoring image (needs Docker with buildx)
 	$(UV) export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
 	docker buildx build --platform linux/arm64 -f docker/lambda.Dockerfile -t muletrace-scorer --load .
 
+ALERT_EMAIL ?= alerts@example.invalid
+
+.PHONY: synth
+synth:  ## Synthesise every CDK stack and run cdk-nag
+	$(UV) run --group infra pytest tests/infra -q
+	npx -y aws-cdk@2 synth --quiet -c alert_email=$(ALERT_EMAIL)
+
+.PHONY: deploy
+deploy:  ## Deploy every stack with your AWS profile (set ALERT_EMAIL to a real address)
+	$(UV) export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
+	$(UV) export --frozen --no-dev --no-emit-project --no-hashes --extra pipeline --extra aws -o docker/requirements-batch.txt
+	npx -y aws-cdk@2 deploy --all -c alert_email=$(ALERT_EMAIL)
+
+.PHONY: teardown
+teardown:  ## Delete every stack, including the data bucket's objects
+	npx -y aws-cdk@2 destroy --all --force
+
 .PHONY: notebooks
 notebooks:  ## Re-execute the notebooks in place (outputs are committed)
 	cd notebooks && $(UV) run jupyter nbconvert --to notebook --execute --inplace 01_eda.ipynb 02_error_analysis.ipynb
