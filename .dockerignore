@@ -1,0 +1,4 @@
+*
+!docker/requirements.txt
+!src/muletrace/**
+**/__pycache__

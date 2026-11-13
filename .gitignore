@@ -49,3 +49,6 @@ AGENTS.md
 # --- Private planning notes ---
 /MuleTrace_Build_Guide.md
 /logo_renan_ds.png
+
+# Exported for the container build by `make image`
+docker/requirements.txt
