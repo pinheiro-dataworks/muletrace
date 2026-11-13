@@ -6,6 +6,33 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-09
+
+Week 2: features, models and honest validation.
+
+### Added
+- Point-in-time account features (flows over 24 h, 72 h and 7 days, forwarding speed,
+  structuring signals, inflow mix) and graph features (degrees, PageRank, sender aggregates,
+  neighbour labels confirmed before the as-of time), cached per configuration hash.
+- LightGBM training with negative subsampling, a six-point search chosen on the first fold,
+  isotonic calibration and a portable model artefact.
+- Rolling-origin backtest of the model ladder (hand-set rules, tuned rules, behaviour-only
+  LightGBM, LightGBM with graph features) with paired bootstrap intervals, expected-cost curves,
+  calibration diagnostics, error slices and SHAP reason codes.
+- Label-delay sensitivity sweep and a reproduction of AMLworld's transaction-level task.
+- Error-analysis notebook.
+- Documents rendered from generated results (`muletrace docs render`), with a test that fails
+  when a published number drifts from its source.
+- ADR-007 (graph features) and ADR-008 (experiment tracking).
+
+### Fixed
+- Transaction-level pair features used a string key whose rolling groups came back in a
+  different order; a row-alignment guard caught it before any result was published.
+
+## [0.0.1] - 2026-11-09
+
+Week 1: foundation, data and the business case.
+
 ### Added
 - Project scaffold: packaging with uv, ruff, mypy (strict), pytest, pre-commit.
 - Commit-message hook and CI scan that reject AI attribution trailers.
