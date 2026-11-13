@@ -32,6 +32,9 @@ pipeline = [
 tracking = [
     "mlflow-skinny>=3.0",
 ]
+aws = [
+    "boto3>=1.35",
+]
 
 [project.scripts]
 muletrace = "muletrace.cli:main"
