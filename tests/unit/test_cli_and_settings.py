@@ -133,3 +133,25 @@ def test_model_commands_write_their_reports(
         "transaction_level_check.yaml",
     }
     assert seen["delays"] == (0, 24)
+
+
+def test_trace_commands(workspace: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    assert cli.main(["data", "prepare", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["data", "simulate-pix", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["trace", "show", "--tx-id", "2"]) == 0
+    assert "disputed_tx_id: 2" in capsys.readouterr().out
+    assert cli.main(["trace", "evaluate", "--datasets", "HI-Small"]) == 0
+    report = yaml.safe_load(
+        (workspace / "docs/generated/tracer_evaluation_HI-Small.yaml").read_text("utf-8")
+    )
+    assert report["disputes_traced"] >= 0
+
+
+def test_docs_render_command(monkeypatch: pytest.MonkeyPatch) -> None:
+    from muletrace import reporting  # noqa: PLC0415
+
+    calls: list[tuple[object, ...]] = []
+    monkeypatch.setattr(reporting, "render_documents", lambda *args: calls.append(args) or [])
+    assert cli.main(["docs", "render"]) == 0
+    assert calls[0][0] == Path("docs/templates")
