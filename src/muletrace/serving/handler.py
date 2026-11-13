@@ -1,7 +1,8 @@
 """Scoring Lambda behind an HTTP API: ``GET /score/{account_id}?as_of=YYYY-MM-DD``.
 
-The model artefact is loaded once per container, at the first request, and kept for the life of
-the container; the feature vector is read from the online store that the daily batch job wrote.
+The model artefact is loaded once per container, at the first request (from S3 when
+``MODEL_URI`` is set, see :mod:`muletrace.serving.model_source`), and kept for the life of the
+container; the feature vector is read from the online store that the daily batch job wrote.
 The response carries the calibrated probability, capped for display (isotonic calibration
 saturates at 1.0 for the highest scores, which over-states certainty), and the top reason
 codes. Each scored request is also logged as one JSON line, the inference capture that the
@@ -16,7 +17,6 @@ import os
 import re
 from dataclasses import dataclass
 from functools import cache
-from pathlib import Path
 from typing import Any, Final
 
 import numpy as np
@@ -27,6 +27,7 @@ from muletrace.serving.feature_client import (
     FeatureStore,
     decode_features,
 )
+from muletrace.serving.model_source import resolve_model_dir
 
 logger = logging.getLogger("muletrace.serving")
 logger.setLevel(logging.INFO)
@@ -79,7 +80,7 @@ class ScoringService:
 def service() -> ScoringService:
     """Build the service from environment variables on the first request of a container."""
     return ScoringService(
-        artifact=load_artifact(Path(os.environ.get("MODEL_DIR", "/opt/model"))),
+        artifact=load_artifact(resolve_model_dir()),
         store=DynamoDBFeatureStore(os.environ["FEATURE_TABLE"]),
         dataset=os.environ.get("DATASET", "HI-Small"),
         probability_cap=float(os.environ.get("PROBABILITY_CAP", DEFAULT_PROBABILITY_CAP)),
