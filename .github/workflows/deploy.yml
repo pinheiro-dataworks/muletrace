@@ -1,0 +1,102 @@
+name: deploy
+
+# Manual only. Keyless: GitHub OIDC assumes a role whose trust policy is limited to this
+# repository, the main branch and the protected environments. Production waits for a
+# reviewer configured on the "production" environment.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "deploy or destroy"
+        type: choice
+        options: [deploy, destroy]
+        default: deploy
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  UV_FROZEN: "1"
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - id: check
+        env:
+          ROLE: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+        run: |
+          if [[ -z "$ROLE" ]]; then
+            echo "AWS_DEPLOY_ROLE_ARN is not set; nothing to deploy." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  dev:
+    needs: preflight
+    if: needs.preflight.outputs.configured == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: docker/setup-qemu-action@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Export container requirements
+        run: |
+          uv sync --all-extras --group infra
+          uv export --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
+          uv export --no-dev --no-emit-project --no-hashes --extra pipeline --extra aws -o docker/requirements-batch.txt
+      - name: CDK ${{ inputs.action }}
+        env:
+          ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
+        run: |
+          flag=$([[ "${{ inputs.action }}" == "destroy" ]] && echo "destroy --force" || echo "deploy --require-approval never")
+          npx -y aws-cdk@2 $flag --all -c alert_email="$ALERT_EMAIL" -c env_name="${{ github.job }}"
+
+  production:
+    needs: dev
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: docker/setup-qemu-action@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Export container requirements
+        run: |
+          uv sync --all-extras --group infra
+          uv export --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
+          uv export --no-dev --no-emit-project --no-hashes --extra pipeline --extra aws -o docker/requirements-batch.txt
+      - name: CDK ${{ inputs.action }}
+        env:
+          ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
+        run: |
+          flag=$([[ "${{ inputs.action }}" == "destroy" ]] && echo "destroy --force" || echo "deploy --require-approval never")
+          npx -y aws-cdk@2 $flag --all -c alert_email="$ALERT_EMAIL" -c env_name="${{ github.job }}"
+
