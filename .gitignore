@@ -52,3 +52,4 @@ AGENTS.md
 
 # Exported for the container build by `make image`
 docker/requirements.txt
+docker/requirements-batch.txt
