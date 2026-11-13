@@ -1,0 +1,42 @@
+name: container
+
+on:
+  pull_request:
+    paths: ["src/**", "docker/**", "pyproject.toml", "uv.lock", ".github/workflows/container.yml"]
+  push:
+    branches: [main]
+    paths: ["src/**", "docker/**", "pyproject.toml", "uv.lock"]
+
+permissions:
+  contents: read
+
+jobs:
+  scorer-image:
+    name: build, size and scan the scoring image (arm64)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Export runtime requirements
+        run: uv export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build
+        run: docker buildx build --platform linux/arm64 -f docker/lambda.Dockerfile -t muletrace-scorer:ci --load .
+      - name: Record image size
+        run: |
+          bytes=$(docker image inspect muletrace-scorer:ci --format '{{.Size}}')
+          echo "Scoring image size: $((bytes / 1000000)) MB (budget: under 300 MB)" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Import smoke test
+        run: >
+          docker run --rm --platform linux/arm64 --entrypoint python muletrace-scorer:ci
+          -c "import muletrace.serving.handler, lightgbm; print('imports ok')"
+      - name: Vulnerability scan (fail on critical)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: muletrace-scorer:ci
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true

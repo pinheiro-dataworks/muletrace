@@ -73,6 +73,11 @@ experiments:  ## Backtest the model ladder, label-delay sweep and the external c
 	$(UV) run muletrace models delay-sweep
 	$(UV) run muletrace models transaction-check
 
+.PHONY: image
+image:  ## Build the arm64 scoring image (needs Docker with buildx)
+	$(UV) export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
+	docker buildx build --platform linux/arm64 -f docker/lambda.Dockerfile -t muletrace-scorer --load .
+
 .PHONY: notebooks
 notebooks:  ## Re-execute the notebooks in place (outputs are committed)
 	cd notebooks && $(UV) run jupyter nbconvert --to notebook --execute --inplace 01_eda.ipynb 02_error_analysis.ipynb
