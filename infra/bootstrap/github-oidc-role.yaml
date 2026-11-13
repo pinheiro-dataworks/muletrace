@@ -1,0 +1,63 @@
+# One-time bootstrap, deployed by the account owner from CloudShell:
+#   aws cloudformation deploy --template-file infra/bootstrap/github-oidc-role.yaml \
+#     --stack-name muletrace-github-oidc --capabilities CAPABILITY_NAMED_IAM \
+#     --parameter-overrides DevSubject="repo:<owner>/<repo>:environment:dev" \
+#                           ProductionSubject="repo:<owner>/<repo>:environment:production"
+#
+# The subjects must match the `sub` claim GitHub issues for this repository's tokens. Check the
+# claim format in GitHub's OIDC documentation before deploying: tokens from pull requests and
+# forks must never match.
+AWSTemplateFormatVersion: "2010-09-09"
+Description: GitHub OIDC provider and the MuleTrace deployment role (no long-lived keys).
+
+Parameters:
+  DevSubject:
+    Type: String
+    Description: Exact `sub` claim for the dev environment.
+  ProductionSubject:
+    Type: String
+    Description: Exact `sub` claim for the production environment.
+  RoleName:
+    Type: String
+    Default: muletrace-github-deploy
+
+Resources:
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: [sts.amazonaws.com]
+
+  DeploymentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOidcProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub:
+                  - !Ref DevSubject
+                  - !Ref ProductionSubject
+      Policies:
+        - PolicyName: assume-cdk-bootstrap-roles
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: sts:AssumeRole
+                Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/cdk-hnb659fds-*-${AWS::AccountId}-us-east-1"
+      Tags:
+        - {Key: Project, Value: muletrace}
+
+Outputs:
+  DeploymentRoleArn:
+    Value: !GetAtt DeploymentRole.Arn
+    Description: Set as the AWS_DEPLOY_ROLE_ARN variable of the GitHub environments.

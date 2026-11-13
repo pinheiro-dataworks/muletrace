@@ -225,7 +225,34 @@ inflow_usd_168h.
 The full list is in `docs/generated/backtest_HI-Small.yaml`; reason codes for the top of the
 queue are shown in `notebooks/02_error_analysis.ipynb`.
 
-## 12. Limitations of this evaluation
+## 12. Fund-flow tracer
+
+Every accepted MED-style dispute in the Pix layer is traced with the parameters in
+`configs/tracer.yaml` (maximum 5 hops, a
+72-hour hop window, transfers of at
+least US$10), and scored against
+AMLworld's own laundering labels, which follow laundered money through later transfers.
+
+| | HI-Small | LI-Small |
+|---|---:|---:|
+| Accepted disputes traced | 30 | 40 |
+| Disputes where the money moved on within the window | 13 | 17 |
+| Deepest hop reached | 5 | 4 |
+| Where the money moved: median share of the disputed amount located beyond the first account | 100.0% | 99.9% |
+| Where the money moved: median precision (share of followed tainted money that moved through laundering transfers) | 23.0% | 0.0% |
+
+**Reading.** In most simulated disputes the receiving account did not move the money within
+72 hours, so there is nothing to trace and the money is still where it arrived. Where it did
+move, the median dispute had almost all of its value beyond the first account: a return limited to
+the first account, as in the original MED, would have reached little of it, which is the gap MED
+2.0's tracing is meant to close. The tracer's allocation rule (tainted money leaves first, oldest
+first) is deliberately pessimistic for recovery, and it shows: its precision against AMLworld's
+labels is low, because it attributes tainted money to ordinary outflows that the simulator's own
+accounting does not. The recoverable figure is an upper bound by construction (balances are not
+observable), so it is not reported as a recovery rate. Known-answer and property tests check the
+tracer's arithmetic (`tests/tracing`); these figures describe its usefulness on this data.
+
+## 13. Limitations of this evaluation
 
 - Three hold-out days and ten days of data in total: nothing here describes behaviour over weeks.
 - One random seed per model; the bootstrap covers sampling of accounts, not training randomness.

@@ -6,6 +6,30 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-13
+
+Week 3: production path on AWS.
+
+### Added
+- MED-inspired fund-flow tracer with known-answer and conservation tests, and its evaluation
+  against AMLworld's laundering labels.
+- Scoring Lambda (arm64 image) reading precomputed features from DynamoDB with a lossless
+  encoding, capped display probabilities and SHAP reason codes; batch/online parity test.
+- Model loading from S3 at cold start and approval-driven promotion from the model registry.
+- SageMaker Spot training job and model-package registration (`PendingManualApproval`), running
+  the same final-training function as `muletrace models train-final`.
+- Daily scoring workflow (Step Functions: build snapshot, score and publish) and SQS replay of
+  transfers.
+- CDK stacks for storage, serving, training, pipeline and cost guards, checked by cdk-nag in CI;
+  OIDC deployment workflow with manual approval; container build, size and vulnerability scan.
+- Runbook, GitHub OIDC bootstrap template, ADR-009 and ADR-010, week-3 audit.
+
+### Changed
+- The CLI is split into one module per command group.
+
+### Fixed
+- The promotion Lambda no longer imports LightGBM through the artefact module.
+
 ## [0.1.0] - 2026-11-09
 
 Week 2: features, models and honest validation.

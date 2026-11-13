@@ -225,7 +225,34 @@ Mean absolute SHAP contribution on the HI-Small hold-out (graph model), top five
 The full list is in `docs/generated/backtest_HI-Small.yaml`; reason codes for the top of the
 queue are shown in `notebooks/02_error_analysis.ipynb`.
 
-## 12. Limitations of this evaluation
+## 12. Fund-flow tracer
+
+Every accepted MED-style dispute in the Pix layer is traced with the parameters in
+`configs/tracer.yaml` (maximum {{ tracer_evaluation_HI-Small.config.max_hops }} hops, a
+{{ tracer_evaluation_HI-Small.config.hop_window_hours | int }}-hour hop window, transfers of at
+least US${{ tracer_evaluation_HI-Small.config.min_transaction_usd | int }}), and scored against
+AMLworld's own laundering labels, which follow laundered money through later transfers.
+
+| | HI-Small | LI-Small |
+|---|---:|---:|
+| Accepted disputes traced | {{ tracer_evaluation_HI-Small.disputes_traced }} | {{ tracer_evaluation_LI-Small.disputes_traced }} |
+| Disputes where the money moved on within the window | {{ tracer_evaluation_HI-Small.disputes_with_onward_hops }} | {{ tracer_evaluation_LI-Small.disputes_with_onward_hops }} |
+| Deepest hop reached | {{ tracer_evaluation_HI-Small.max_hop_reached }} | {{ tracer_evaluation_LI-Small.max_hop_reached }} |
+| Where the money moved: median share of the disputed amount located beyond the first account | {{ tracer_evaluation_HI-Small.median_with_onward_hops.beyond_first_account_share | pct }} | {{ tracer_evaluation_LI-Small.median_with_onward_hops.beyond_first_account_share | pct }} |
+| Where the money moved: median precision (share of followed tainted money that moved through laundering transfers) | {{ tracer_evaluation_HI-Small.median_with_onward_hops.precision_usd | pct }} | {{ tracer_evaluation_LI-Small.median_with_onward_hops.precision_usd | pct }} |
+
+**Reading.** In most simulated disputes the receiving account did not move the money within
+72 hours, so there is nothing to trace and the money is still where it arrived. Where it did
+move, the median dispute had almost all of its value beyond the first account: a return limited to
+the first account, as in the original MED, would have reached little of it, which is the gap MED
+2.0's tracing is meant to close. The tracer's allocation rule (tainted money leaves first, oldest
+first) is deliberately pessimistic for recovery, and it shows: its precision against AMLworld's
+labels is low, because it attributes tainted money to ordinary outflows that the simulator's own
+accounting does not. The recoverable figure is an upper bound by construction (balances are not
+observable), so it is not reported as a recovery rate. Known-answer and property tests check the
+tracer's arithmetic (`tests/tracing`); these figures describe its usefulness on this data.
+
+## 13. Limitations of this evaluation
 
 - Three hold-out days and ten days of data in total: nothing here describes behaviour over weeks.
 - One random seed per model; the bootstrap covers sampling of accounts, not training randomness.
