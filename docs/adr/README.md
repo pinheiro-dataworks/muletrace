@@ -13,6 +13,7 @@ change its decision; a later record supersedes it instead.
 | [006](006-target-and-validation-design.md) | Target definition and validation design | Accepted |
 | [007](007-graph-features.md) | Graph features: aggregates, PageRank and neighbour labels | Accepted |
 | [008](008-experiment-tracking.md) | Experiment tracking: MLflow when configured, JSON Lines otherwise | Accepted |
+| [009](009-serving-and-parity.md) | Serving: precomputed features, lossless encoding, capped probabilities | Accepted |
 
 Template: *Context* (what forces the decision), *Decision* (what we do), *Consequences*
 (what gets easier, what gets harder, what we would revisit).

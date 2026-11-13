@@ -50,6 +50,11 @@ class ModelArtifact:
         raw = np.asarray(self.booster.predict(matrix), dtype=np.float64)
         return raw, self.calibrator.transform(raw)
 
+    def contributions_matrix(self, matrix: NDArray[np.float64]) -> NDArray[np.float64]:
+        """SHAP contributions per feature (bias column dropped) for a feature matrix."""
+        raw = self.booster.predict(matrix, pred_contrib=True)
+        return np.asarray(raw, dtype=np.float64)[:, :-1]
+
     def score_frame(self, frame: pl.DataFrame) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Raw score and calibrated probability for every row of ``frame``."""
         return self.score_matrix(frame.select(self.features).to_numpy().astype(np.float64))
