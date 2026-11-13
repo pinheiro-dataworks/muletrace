@@ -28,7 +28,7 @@ def test_resolve_walks_keys_and_selectors() -> None:
 @pytest.mark.parametrize(
     ("template", "expected"),
     [
-        ("{{ backtest_HI-Small.hold_out.m[alerts_per_10k=20].recall | pct }}", "18.4%"),
+        ("{{ backtest_HI-Small.hold_out.m[alerts_per_10k=20].recall | pct }}", "18.5%"),
         ("{{backtest_HI-Small.bootstrap.recall.m.ci95|ci}}", "17.0 to 20.0%"),
         ("{{ backtest_HI-Small.n | int }} positives", "2,152 positives"),
         ("{{ backtest_HI-Small.n }}", "2152"),
@@ -77,3 +77,26 @@ def test_duplicate_source_names_are_rejected(tmp_path: Path) -> None:
         (tmp_path / folder / "same.yaml").write_text("x: 1\n", "utf-8")
     with pytest.raises(RenderError, match="duplicate"):
         load_sources(tmp_path / "a", tmp_path / "b")
+
+
+@pytest.mark.parametrize(
+    ("template", "expected"),
+    [
+        ("{{ s.half | pct }}", "18.5%"),
+        ("{{ s.tiny | f3 }}", "0.000"),
+        ("{{ s.pair | ci3 }}", "0.144 to 0.176"),
+        ("{{ s.big | billions }}", "7.94"),
+        ("{{ s.count | int }}", "2,153"),
+    ],
+)
+def test_rounding_is_half_up_on_the_stored_decimal(template: str, expected: str) -> None:
+    sources = {
+        "s": {
+            "half": 0.1845,
+            "tiny": -0.0003,
+            "pair": [0.1443, 0.1758],
+            "big": 7939758155.24,
+            "count": 2152.5,
+        }
+    }
+    assert render(template, sources) == expected

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 from typing import Any
 
@@ -33,24 +34,33 @@ class RenderError(KeyError):
     """Raised when a placeholder does not resolve."""
 
 
-def _percent(digits: int) -> Callable[[Any], str]:
-    return lambda value: f"{100 * float(value):.{digits}f}%"
+def _fixed(value: Any, places: int, scale: int = 1) -> str:  # noqa: ANN401 - YAML number
+    """Round half up on the decimal value as stored, and never print a negative zero."""
+    quantum = Decimal(1).scaleb(-places)
+    rounded = (Decimal(str(value)) * scale).quantize(quantum, rounding=ROUND_HALF_UP)
+    return f"{abs(rounded) if rounded == 0 else rounded:.{places}f}"
 
 
-def _interval(value: Any) -> str:  # noqa: ANN401 - a two-item list from YAML
-    low, high = value
-    return f"{100 * float(low):.1f} to {100 * float(high):.1f}%"
+def _interval(places: int, scale: int, suffix: str) -> Callable[[Any], str]:
+    def formatter(value: Any) -> str:  # noqa: ANN401 - a two-item list from YAML
+        low, high = value
+        return f"{_fixed(low, places, scale)} to {_fixed(high, places, scale)}{suffix}"
+
+    return formatter
 
 
 FILTERS: dict[str, Callable[[Any], str]] = {
-    "pct": _percent(1),
-    "pct2": _percent(2),
-    "ci": _interval,
-    "int": lambda value: f"{round(float(value)):,}",
-    "billions": lambda value: f"{float(value) / 1e9:.2f}",
-    "f2": lambda value: f"{float(value):.2f}",
-    "f3": lambda value: f"{float(value):.3f}",
-    "f4": lambda value: f"{float(value):.4f}",
+    "pct": lambda value: f"{_fixed(value, 1, 100)}%",
+    "pct2": lambda value: f"{_fixed(value, 2, 100)}%",
+    "ci": _interval(1, 100, "%"),
+    "ci3": _interval(3, 1, ""),
+    "int": lambda value: (
+        f"{int(Decimal(str(value)).quantize(Decimal(1), rounding=ROUND_HALF_UP)):,}"
+    ),
+    "billions": lambda value: _fixed(Decimal(str(value)) / Decimal(10**9), 2),
+    "f2": lambda value: _fixed(value, 2),
+    "f3": lambda value: _fixed(value, 3),
+    "f4": lambda value: _fixed(value, 4),
     "raw": str,
 }
 
