@@ -99,22 +99,30 @@ def evaluate_tracer(dataset_dir: Path, config: TracerConfig) -> dict[str, Any]:
         result = trace(transactions, tx_id, config)
         started = transactions.filter(pl.col("tx_id") == tx_id).collect()["timestamp"].item()
         rows.append(_score(result, transactions, started + config.hop_window * config.max_hops))
-    keys = (
-        "precision_usd",
-        "coverage",
-        "recoverable_share",
-        "beyond_first_account_share",
-        "left_trace_share",
-    )
+    return {"dataset": dataset_dir.name, "config": config.model_dump(), **_summary(rows)}
+
+
+_SCORES = (
+    "precision_usd",
+    "coverage",
+    "recoverable_share",
+    "beyond_first_account_share",
+    "left_trace_share",
+)
+
+
+def _medians(rows: list[dict[str, Any]]) -> dict[str, float | None]:
+    return {key: _median([row[key] for row in rows]) for key in _SCORES}
+
+
+def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Medians over every trace and over traces where the money moved on."""
+    moved = [row for row in rows if row["hops_followed"] > 0]
     return {
-        "dataset": dataset_dir.name,
-        "config": config.model_dump(),
         "disputes_traced": len(rows),
-        "disputes_with_onward_hops": sum(1 for row in rows if row["hops_followed"] > 0),
-        "median": {key: _median([row[key] for row in rows]) for key in keys},
-        "median_with_onward_hops": {
-            key: _median([row[key] for row in rows if row["hops_followed"] > 0]) for key in keys
-        },
+        "disputes_with_onward_hops": len(moved),
+        "median": _medians(rows),
+        "median_with_onward_hops": _medians(moved),
         "median_accounts_reached": _median([float(row["accounts_reached"]) for row in rows]),
         "max_hop_reached": max((row["max_hop_reached"] for row in rows), default=0),
         "per_dispute": rows,
