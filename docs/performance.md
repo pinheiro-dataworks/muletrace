@@ -23,9 +23,20 @@ figures below come from.
 | Rules baseline, 3 snapshots × 2 datasets | `muletrace models rules` | 5.2 s | 1,349 MiB |
 | Feature build, HI-Small, 8 snapshots | `muletrace features build --datasets HI-Small` | 28.2 s | 2,495 MiB |
 | Feature build, LI-Small, 8 snapshots | `muletrace features build --datasets LI-Small` | 37.2 s | 3,373 MiB |
+| Backtest, LI-Small (4 folds × 4 models, search, 1,000-replicate bootstrap, report) | `muletrace models backtest --datasets LI-Small` | 834.2 s | 2,675 MiB |
+| Transaction-level external check, both datasets | `muletrace models transaction-check` | 227.7 s | 2,853 MiB |
+| Label-delay sweep, HI-Small (5 delays × 3 folds × 2 models, rebuilding snapshots per delay) | `muletrace models delay-sweep` | 1,203.9 s | 4,367 MiB |
 
 Measured on 2026-11-09 (UTC), warm file cache, one run each. Feature builds start from an
-empty snapshot cache.
+empty snapshot cache; the backtest reads cached snapshots. The HI-Small backtest was not timed
+in a clean run (its first run was interrupted by a report-serialisation bug, since fixed), so
+only LI-Small is listed. Training uses `num_threads: 6` throughout.
+
+**Where the backtest time goes.** LightGBM fits are fast because negatives are subsampled to 20%
+(a fold trains on up to about 270,000 rows instead of 1.3 million). The paired bootstrap was
+timed separately on the HI-Small hold-out predictions: about 0.25 s per replicate for four models
+and three snapshots, so roughly four minutes for 1,000 replicates. The tuned-rules grid evaluates
+54 threshold combinations per fold and was not timed on its own.
 
 **Storage** (decimal megabytes). The typed Parquet tables take 136.6 MB (HI-Small) and
 188.6 MB (LI-Small) on disk, against 509.7 MB and 697.7 MB for the source CSV files

@@ -1,0 +1,6 @@
+# Normalise text to LF in the repository and in working trees on every OS, so generated
+# reports, notebooks and the checksum manifest are byte-identical across machines.
+* text=auto eol=lf
+
+*.png binary
+*.parquet binary

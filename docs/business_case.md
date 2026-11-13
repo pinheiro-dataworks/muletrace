@@ -1,5 +1,8 @@
 # Business case
 
+<!-- Rendered from docs/templates/business_case.md by `muletrace docs render`. Figures
+     come from configs/calibration and docs/generated; do not edit numbers by hand. -->
+
 ## The user
 
 A fraud or AML analyst at a mid-size payment provider, working on the **receiving side** of
@@ -15,11 +18,12 @@ Instant Payments Regulation; MuleTrace maps to those regimes but implements none
 
 All figures below come from the Banco Central do Brasil (BCB) open-data service
 *Estatísticas de Fraude no Pix (MED)* (endpoint `Pix_DadosAbertos/EstatisticasFraudesPix`),
-accessed on 2026-11-09 (UTC), summed over the twelve complete months from October 2025 to
-September 2026. The figures are frozen in
+accessed on 2026-11-09 (UTC), summed over the
+12 complete months from October 2025 to September 2026. The figures
+are frozen in
 [`configs/calibration/bcb_public_figures.yaml`](../configs/calibration/bcb_public_figures.yaml)
-by `scripts/fetch_bcb_calibration.py`. MED (*Mecanismo Especial de Devolução*) is the Pix special return mechanism
-used when a payer reports fraud.
+by `scripts/fetch_bcb_calibration.py`. MED (*Mecanismo Especial de Devolução*) is the Pix special
+return mechanism used when a payer reports fraud.
 
 | Measure (Oct 2025 – Sep 2026) | Value |
 |---|---|
@@ -62,10 +66,12 @@ analyst team's capacity, not the model, that sets it.
 - Scored population: accounts that received at least one transfer in the seven days before
   the as-of time and are not already confirmed as mules.
 - Default budget: **20 alerts per 10,000 accounts per day** (assumption A1 below).
-- In HI-Small, between 20 and 29 accounts per 10,000 become confirmed mules within the
-  two-day horizon (measured during data exploration, see [eval_report.md](eval_report.md)),
-  so a budget of 20 forces real prioritisation: even a perfect ranking cannot alert on every
-  mule on the busiest days.
+- On the HI-Small hold-out snapshots, between
+  25.51 and
+  29.20 accounts per
+  10,000 are confirmed as mules within the two-day horizon (see
+  [eval_report.md](eval_report.md)), so a budget of 20 forces real prioritisation: even a perfect
+  ranking cannot alert on every mule.
 - Results are always reported over a range of budgets (5, 10, 20, 50 and 100 per 10,000), so
   a reader with a different capacity can read off their own operating point.
 

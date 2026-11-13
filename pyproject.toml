@@ -1,6 +1,6 @@
 [project]
 name = "muletrace"
-version = "0.0.1"
+version = "0.1.0"
 description = "Receive-side mule-account defence for instant payments: point-in-time graph risk scoring, fund-flow tracing and an evidence-grounded investigation copilot."
 readme = "README.md"
 license = "Apache-2.0"
@@ -16,6 +16,7 @@ classifiers = [
 # Lambdas need, so the container image stays small. Batch-only libraries live
 # in the `pipeline` extra.
 dependencies = [
+    "lightgbm>=4.5",
     "numpy>=2.1",
     "pydantic>=2.9",
 ]
@@ -27,6 +28,9 @@ pipeline = [
     "pyyaml>=6.0.2",
     "scikit-learn>=1.6",
     "scipy>=1.14",
+]
+tracking = [
+    "mlflow-skinny>=3.0",
 ]
 
 [project.scripts]

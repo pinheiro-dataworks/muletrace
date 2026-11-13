@@ -90,6 +90,7 @@ def _snapshot_result(
     return {
         "scored_accounts": scored.height,
         "positives": int(labels.sum()),
+        "positives_per_10k": round(10_000 * float(labels.mean()), 2) if labels.size else 0.0,
         "average_precision": round(average_precision(labels, scores), 4),
         "budgets": budget_table(
             labels,

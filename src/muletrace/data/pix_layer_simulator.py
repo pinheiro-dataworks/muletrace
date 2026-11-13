@@ -139,7 +139,7 @@ class PixLayer:
             frame: pl.DataFrame = getattr(self, name)
             frame.write_parquet(output_dir / f"pix_{name}.parquet", compression="zstd")
         (output_dir / "calibration_report.yaml").write_text(
-            yaml.safe_dump(self.calibration, sort_keys=False), encoding="utf-8"
+            yaml.safe_dump(self.calibration, sort_keys=False), encoding="utf-8", newline="\n"
         )
 
 

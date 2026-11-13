@@ -103,3 +103,33 @@ def test_cli_simulate_pix_after_prepare(workspace: Path) -> None:
     assert cli.main(["features", "build", "--datasets", "HI-Small"]) == 0
     cached = list((workspace / "artifacts" / "features").glob("HI-Small-*/*.parquet"))
     assert len(cached) == 8
+
+
+def test_model_commands_write_their_reports(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from muletrace.models import experiment, transaction_level  # noqa: PLC0415
+
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    seen: dict[str, object] = {}
+    monkeypatch.setattr(experiment, "run_experiment", lambda *_: {"chosen_params": {"m": {}}})
+    monkeypatch.setattr(
+        experiment, "run_delay_sweep", lambda *a: seen.setdefault("delays", a[3]) and {"ok": 1}
+    )
+    monkeypatch.setattr(transaction_level, "run_transaction_check", lambda *_: {"f1": 1.0})
+    (workspace / "data/processed/HI-Small").mkdir(parents=True)
+    for name in ("transactions", "accounts"):
+        pl.DataFrame({"x": [1]}).write_parquet(
+            workspace / f"data/processed/HI-Small/{name}.parquet"
+        )
+
+    assert cli.main(["models", "backtest", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["models", "delay-sweep", "--delays", "0", "24"]) == 0
+    assert cli.main(["models", "transaction-check", "--datasets", "HI-Small"]) == 0
+    generated = workspace / "docs/generated"
+    assert {p.name for p in generated.iterdir()} >= {
+        "backtest_HI-Small.yaml",
+        "delay_sweep_HI-Small.yaml",
+        "transaction_level_check.yaml",
+    }
+    assert seen["delays"] == (0, 24)
