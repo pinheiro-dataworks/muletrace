@@ -1,6 +1,6 @@
 [project]
 name = "muletrace"
-version = "0.1.0"
+version = "0.2.0"
 description = "Receive-side mule-account defence for instant payments: point-in-time graph risk scoring, fund-flow tracing and an evidence-grounded investigation copilot."
 readme = "README.md"
 license = "Apache-2.0"
