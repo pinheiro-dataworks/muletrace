@@ -125,6 +125,30 @@ def test_model_commands_write_their_reports(
 
     assert cli.main(["models", "backtest", "--datasets", "HI-Small"]) == 0
     assert cli.main(["models", "delay-sweep", "--delays", "0", "24"]) == 0
+    from muletrace.models import final  # noqa: PLC0415
+    from tests.fixtures.model_data import TRAINING, labelled_frame  # noqa: PLC0415
+
+    def fake_final(*_: object) -> tuple:
+        from muletrace.models.calibration import IsotonicCalibrator  # noqa: PLC0415
+        from muletrace.models.train import fit  # noqa: PLC0415
+
+        frame = labelled_frame(500, 0)
+        model = fit(frame, frame, ["signal"], {"num_leaves": 4}, TRAINING)
+        return (
+            model,
+            IsotonicCalibrator.fit(model.predict(frame), frame["label"].to_numpy()),
+            {"valid_average_precision": 0.5},
+        )
+
+    monkeypatch.setattr(final, "train_final_model", fake_final)
+    (workspace / "docs/generated/backtest_HI-Small.yaml").write_text(
+        "chosen_params:\n  lgbm_tabular_graph: {num_leaves: 4}\n", "utf-8"
+    )
+    monkeypatch.setattr(
+        "muletrace.features.build.build_snapshots", lambda *_: pl.DataFrame({"x": [1]})
+    )
+    assert cli.main(["models", "train-final", "--datasets", "HI-Small"]) == 0
+    assert (workspace / "artifacts/models/HI-Small/model.txt").is_file()
     assert cli.main(["models", "transaction-check", "--datasets", "HI-Small"]) == 0
     generated = workspace / "docs/generated"
     assert {p.name for p in generated.iterdir()} >= {

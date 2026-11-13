@@ -117,6 +117,39 @@ def _transaction_check(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _train_final(args: argparse.Namespace, settings: Settings) -> int:
+    from muletrace.features.asof import snapshot_times
+    from muletrace.features.build import build_snapshots
+    from muletrace.models.artifact import save_artifact
+    from muletrace.models.final import train_final_model
+
+    config = experiment_config()
+    evaluation = config.evaluation
+    times = snapshot_times(
+        evaluation.first_snapshot, evaluation.last_snapshot, evaluation.snapshot_step
+    )
+    for name in args.datasets:
+        backtest = yaml.safe_load((GENERATED_DIR / f"backtest_{name}.yaml").read_text("utf-8"))
+        snapshots = build_snapshots(
+            settings.processed_dir / name,
+            settings.features_dir,
+            times,
+            config.labels,
+            config.features,
+        )
+        model, calibrator, metadata = train_final_model(
+            snapshots,
+            config.features,
+            config.training,
+            backtest["chosen_params"]["lgbm_tabular_graph"],
+            config.labels.horizon,
+        )
+        folder = settings.artifacts_dir / "models" / name
+        save_artifact(folder, model.booster, calibrator, {"dataset": name, **metadata})
+        logger.info("%s: wrote %s (valid AP %s)", name, folder, metadata["valid_average_precision"])
+    return 0
+
+
 def register(groups: Groups) -> None:
     """Add the ``features`` and ``models`` groups."""
     features = groups.add_parser("features", help="Point-in-time feature snapshots")
@@ -127,6 +160,9 @@ def register(groups: Groups) -> None:
     sub = models.add_subparsers(dest="command", required=True)
     add_command(sub, "rules", _rules, "Score the rules baseline on the hold-out")
     add_command(sub, "backtest", _backtest, "Run the model ladder backtest")
+    add_command(
+        sub, "train-final", _train_final, "Train the production model, as the cloud job does"
+    )
     sweep = add_command(
         sub, "delay-sweep", _delay_sweep, "Label-delay sensitivity on the hold-out", ["HI-Small"]
     )
