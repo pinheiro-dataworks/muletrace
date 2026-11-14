@@ -20,7 +20,7 @@ to a fraud problem: start from the decision an analyst makes and its budget, mak
 validation honest about time and labels, measure everything that is published, and say plainly
 what did not work.
 
-[Case explorer (static demo)](demo/) ·
+[Case explorer (live demo)](https://pinheiro-dataworks.github.io/muletrace/) ·
 [Evaluation report](docs/eval_report.md) ·
 [Model card](docs/model_card.md) ·
 [Business case](docs/business_case.md) ·
