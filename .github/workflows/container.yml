@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Export runtime requirements
-        run: uv export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
+        run: uv export --frozen --no-dev --no-emit-project --extra aws -o docker/requirements.txt
       - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - name: Build

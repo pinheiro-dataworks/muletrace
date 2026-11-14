@@ -62,8 +62,8 @@ jobs:
       - name: Export container requirements
         run: |
           uv sync --all-extras --group infra
-          uv export --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
-          uv export --no-dev --no-emit-project --no-hashes --extra pipeline --extra aws -o docker/requirements-batch.txt
+          uv export --no-dev --no-emit-project --extra aws -o docker/requirements.txt
+          uv export --no-dev --no-emit-project --extra pipeline --extra aws -o docker/requirements-batch.txt
       - name: CDK ${{ inputs.action }}
         env:
           ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
@@ -91,8 +91,8 @@ jobs:
       - name: Export container requirements
         run: |
           uv sync --all-extras --group infra
-          uv export --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
-          uv export --no-dev --no-emit-project --no-hashes --extra pipeline --extra aws -o docker/requirements-batch.txt
+          uv export --no-dev --no-emit-project --extra aws -o docker/requirements.txt
+          uv export --no-dev --no-emit-project --extra pipeline --extra aws -o docker/requirements-batch.txt
       - name: CDK ${{ inputs.action }}
         env:
           ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
