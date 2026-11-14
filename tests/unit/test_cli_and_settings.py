@@ -234,3 +234,36 @@ def test_monitor_drift_command(workspace: Path, monkeypatch: pytest.MonkeyPatch)
     report = yaml.safe_load((workspace / "docs/generated/drift_HI-Small.yaml").read_text("utf-8"))
     assert report["days"]["2022-09-09"]["alerts"] == []
     assert report["report_only"] == ["account_age_hours"]
+
+
+def test_demo_build_command(workspace: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import json  # noqa: PLC0415
+
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    assert cli.main(["data", "prepare", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["data", "simulate-pix", "--datasets", "HI-Small"]) == 0
+
+    class FakeBuilder:
+        def __init__(self, **kwargs: object) -> None:
+            self.budget = kwargs["budget_per_10k"]
+
+        def alerted(self, as_of: object, count: int) -> list[tuple[int, object, None]]:
+            return [(7, as_of, None)][:count]
+
+        def disputed(self, *_: object) -> list[tuple[int, object, int]]:
+            return [(8, "2022-09-07", 2)]
+
+        def case(self, case_id: str, account_id: int, as_of: object, tx_id: int | None) -> dict:
+            return {"case_id": case_id, "account_id": account_id, "tx": tx_id, "as_of": as_of}
+
+    monkeypatch.setattr("muletrace.demo.cases.DemoBuilder", FakeBuilder)
+    monkeypatch.setattr("muletrace.features.build.build_snapshots", lambda *_: None)
+    monkeypatch.setattr("muletrace.models.artifact.load_artifact", lambda _: None)
+    assert cli.main(["demo", "build", "--alerted", "1", "--disputed", "1"]) == 0
+    payload = json.loads((workspace / "demo/cases.json").read_text("utf-8"))
+    assert payload["synthetic"] is True
+    assert payload["alert_budget_per_10k"] == 20
+    assert [(c["case_id"], c["account_id"], c["tx"]) for c in payload["cases"]] == [
+        ("demo-01", 7, None),
+        ("demo-02", 8, 2),
+    ]

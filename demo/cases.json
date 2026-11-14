@@ -1,0 +1,2969 @@
+{
+ "dataset": "HI-Small",
+ "synthetic": true,
+ "generated_by": "muletrace demo build",
+ "alert_budget_per_10k": 20.0,
+ "cases": [
+  {
+   "case_id": "demo-01",
+   "kind": "alerted",
+   "account_id": 275914,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 275914,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.99,
+    "probability_capped": true,
+    "raw_score": 0.996188,
+    "reasons": [
+     {
+      "feature": "ach_inflow_share",
+      "value": 1.0,
+      "contribution": 2.9658
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 17462.760000000002,
+      "contribution": 2.5472
+     },
+     {
+      "feature": "confirmed_mule_senders",
+      "value": 1.0,
+      "contribution": 2.0436
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 1,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": true,
+    "already_active_at_as_of": true
+   },
+   "evidence": {
+    "case_id": "demo-01",
+    "dataset": "HI-Small",
+    "account_id": 275914,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 3596551,
+      "timestamp": "2022-09-08T12:38:00",
+      "direction": "in",
+      "counterparty_id": 167488,
+      "amount_usd": 2915.97,
+      "payment_format": "ACH",
+      "description": "School fees"
+     },
+     {
+      "tx_id": 3596552,
+      "timestamp": "2022-09-08T12:38:00",
+      "direction": "in",
+      "counterparty_id": 167488,
+      "amount_usd": 14546.79,
+      "payment_format": "ACH",
+      "description": "Phone bill"
+     },
+     {
+      "tx_id": 3596554,
+      "timestamp": "2022-09-08T16:58:00",
+      "direction": "out",
+      "counterparty_id": 207543,
+      "amount_usd": 4062.85,
+      "payment_format": "ACH",
+      "description": "School fees"
+     },
+     {
+      "tx_id": 3596555,
+      "timestamp": "2022-09-08T16:58:00",
+      "direction": "out",
+      "counterparty_id": 207543,
+      "amount_usd": 14546.79,
+      "payment_format": "ACH",
+      "description": ""
+     }
+    ],
+    "risk_probability": 0.99,
+    "reason_codes": [
+     "ach_inflow_share",
+     "inflow_usd_24h",
+     "confirmed_mule_senders"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-01",
+    "account_id": 275914,
+    "summary": "Account 275914 has 4 ACH transfers in the window, from 1 distinct sender and to 1 distinct receiver. The flow shape matches stack; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 275914 received 14,546.79 USD by ACH from account 167488 (tx 3596552).",
+      "tx_ids": [
+       3596552
+      ],
+      "amounts_usd": [
+       14546.79
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       275914,
+       167488
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 275914 received 2,915.97 USD by ACH from account 167488 (tx 3596551).",
+      "tx_ids": [
+       3596551
+      ],
+      "amounts_usd": [
+       2915.97
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       275914,
+       167488
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 275914 sent 14,546.79 USD by ACH to account 207543 (tx 3596555).",
+      "tx_ids": [
+       3596555
+      ],
+      "amounts_usd": [
+       14546.79
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       275914,
+       207543
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 275914 sent 4,062.85 USD by ACH to account 207543 (tx 3596554).",
+      "tx_ids": [
+       3596554
+      ],
+      "amounts_usd": [
+       4062.85
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       275914,
+       207543
+      ]
+     }
+    ],
+    "typology": "STACK",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-02",
+   "kind": "alerted",
+   "account_id": 242417,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 242417,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.58,
+    "probability_capped": false,
+    "raw_score": 0.743334,
+    "reasons": [
+     {
+      "feature": "ach_inflow_share",
+      "value": 1.0,
+      "contribution": 2.5657
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 6741.71,
+      "contribution": 1.8306
+     },
+     {
+      "feature": "sender_mean_out_degree",
+      "value": 7.5,
+      "contribution": 0.9856
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 72,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": true,
+    "already_active_at_as_of": true
+   },
+   "evidence": {
+    "case_id": "demo-02",
+    "dataset": "HI-Small",
+    "account_id": 242417,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 3411074,
+      "timestamp": "2022-09-08T09:08:00",
+      "direction": "in",
+      "counterparty_id": 10096,
+      "amount_usd": 6741.71,
+      "payment_format": "ACH",
+      "description": "Supplier payment"
+     },
+     {
+      "tx_id": 4751449,
+      "timestamp": "2022-09-09T19:37:00",
+      "direction": "in",
+      "counterparty_id": 365005,
+      "amount_usd": 208.05,
+      "payment_format": "ACH",
+      "description": "Dinner split"
+     }
+    ],
+    "risk_probability": 0.58,
+    "reason_codes": [
+     "ach_inflow_share",
+     "inflow_usd_24h",
+     "sender_mean_out_degree"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-02",
+    "account_id": 242417,
+    "summary": "Account 242417 has 2 ACH transfers in the window, from 2 distinct senders and to 0 distinct receivers. The flow shape matches random; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 242417 received 6,741.71 USD by ACH from account 10096 (tx 3411074).",
+      "tx_ids": [
+       3411074
+      ],
+      "amounts_usd": [
+       6741.71
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       242417,
+       10096
+      ]
+     },
+     {
+      "text": "On 2022-09-09 account 242417 received 208.05 USD by ACH from account 365005 (tx 4751449).",
+      "tx_ids": [
+       4751449
+      ],
+      "amounts_usd": [
+       208.05
+      ],
+      "dates": [
+       "2022-09-09"
+      ],
+      "account_ids": [
+       242417,
+       365005
+      ]
+     }
+    ],
+    "typology": "RANDOM",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-03",
+   "kind": "alerted",
+   "account_id": 263844,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 263844,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.58,
+    "probability_capped": false,
+    "raw_score": 0.51055,
+    "reasons": [
+     {
+      "feature": "ach_inflow_share",
+      "value": 0.5,
+      "contribution": 1.7908
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 5189.535971899598,
+      "contribution": 1.3525
+     },
+     {
+      "feature": "account_age_hours",
+      "value": 192.0,
+      "contribution": 0.7144
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 144,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": true,
+    "already_active_at_as_of": true
+   },
+   "evidence": {
+    "case_id": "demo-03",
+    "dataset": "HI-Small",
+    "account_id": 263844,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 3906793,
+      "timestamp": "2022-09-08T09:52:00",
+      "direction": "in",
+      "counterparty_id": 292742,
+      "amount_usd": 5189.54,
+      "payment_format": "ACH",
+      "description": "Rent"
+     },
+     {
+      "tx_id": 4436325,
+      "timestamp": "2022-09-09T07:41:00",
+      "direction": "out",
+      "counterparty_id": 21792,
+      "amount_usd": 469.04,
+      "payment_format": "Wire",
+      "description": "Invoice payment"
+     },
+     {
+      "tx_id": 4436324,
+      "timestamp": "2022-09-09T07:58:00",
+      "direction": "out",
+      "counterparty_id": 21792,
+      "amount_usd": 2321.95,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 4568686,
+      "timestamp": "2022-09-09T12:46:00",
+      "direction": "in",
+      "counterparty_id": 403791,
+      "amount_usd": 265.6,
+      "payment_format": "Cheque",
+      "description": ""
+     }
+    ],
+    "risk_probability": 0.58,
+    "reason_codes": [
+     "ach_inflow_share",
+     "inflow_usd_24h",
+     "account_age_hours"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-03",
+    "account_id": 263844,
+    "summary": "Account 263844 has 1 ACH transfer in the window, from 1 distinct sender and to 0 distinct receivers. The flow shape matches random; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 263844 received 5,189.54 USD by ACH from account 292742 (tx 3906793).",
+      "tx_ids": [
+       3906793
+      ],
+      "amounts_usd": [
+       5189.54
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       263844,
+       292742
+      ]
+     }
+    ],
+    "typology": "RANDOM",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-04",
+   "kind": "alerted",
+   "account_id": 177493,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 177493,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.2375,
+    "probability_capped": false,
+    "raw_score": 0.331705,
+    "reasons": [
+     {
+      "feature": "ach_inflow_share",
+      "value": 0.6,
+      "contribution": 1.784
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 4786.576210944098,
+      "contribution": 1.1663
+     },
+     {
+      "feature": "median_hours_to_forward",
+      "value": 82.775,
+      "contribution": 0.8968
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 215,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": false,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-04",
+    "dataset": "HI-Small",
+    "account_id": 177493,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 2946169,
+      "timestamp": "2022-09-06T08:04:00",
+      "direction": "out",
+      "counterparty_id": 177499,
+      "amount_usd": 4849.94,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4135614,
+      "timestamp": "2022-09-08T19:44:00",
+      "direction": "in",
+      "counterparty_id": 177499,
+      "amount_usd": 4786.58,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4693940,
+      "timestamp": "2022-09-09T17:03:00",
+      "direction": "in",
+      "counterparty_id": 177484,
+      "amount_usd": 125.65,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 4693941,
+      "timestamp": "2022-09-09T17:15:00",
+      "direction": "in",
+      "counterparty_id": 177484,
+      "amount_usd": 246.39,
+      "payment_format": "ACH",
+      "description": "Supplier payment"
+     },
+     {
+      "tx_id": 4693939,
+      "timestamp": "2022-09-09T17:24:00",
+      "direction": "in",
+      "counterparty_id": 177484,
+      "amount_usd": 742.93,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 4813864,
+      "timestamp": "2022-09-09T21:32:00",
+      "direction": "in",
+      "counterparty_id": 177499,
+      "amount_usd": 4392.28,
+      "payment_format": "ACH",
+      "description": ""
+     }
+    ],
+    "risk_probability": 0.2375,
+    "reason_codes": [
+     "ach_inflow_share",
+     "inflow_usd_24h",
+     "median_hours_to_forward"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-04",
+    "account_id": 177493,
+    "summary": "Account 177493 has 4 ACH transfers in the window, from 2 distinct senders and to 1 distinct receiver. The flow shape matches random; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-06 account 177493 sent 4,849.94 USD by ACH to account 177499 (tx 2946169).",
+      "tx_ids": [
+       2946169
+      ],
+      "amounts_usd": [
+       4849.94
+      ],
+      "dates": [
+       "2022-09-06"
+      ],
+      "account_ids": [
+       177493,
+       177499
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 177493 received 4,786.58 USD by ACH from account 177499 (tx 4135614).",
+      "tx_ids": [
+       4135614
+      ],
+      "amounts_usd": [
+       4786.58
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       177493,
+       177499
+      ]
+     },
+     {
+      "text": "On 2022-09-09 account 177493 received 246.39 USD by ACH from account 177484 (tx 4693941).",
+      "tx_ids": [
+       4693941
+      ],
+      "amounts_usd": [
+       246.39
+      ],
+      "dates": [
+       "2022-09-09"
+      ],
+      "account_ids": [
+       177493,
+       177484
+      ]
+     },
+     {
+      "text": "On 2022-09-09 account 177493 received 4,392.28 USD by ACH from account 177499 (tx 4813864).",
+      "tx_ids": [
+       4813864
+      ],
+      "amounts_usd": [
+       4392.28
+      ],
+      "dates": [
+       "2022-09-09"
+      ],
+      "account_ids": [
+       177493,
+       177499
+      ]
+     }
+    ],
+    "typology": "RANDOM",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-05",
+   "kind": "alerted",
+   "account_id": 478838,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 478838,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.196078,
+    "probability_capped": false,
+    "raw_score": 0.264307,
+    "reasons": [
+     {
+      "feature": "distinct_senders_24h",
+      "value": 6.0,
+      "contribution": 1.4372
+     },
+     {
+      "feature": "ach_inflow_share",
+      "value": 0.6666666666666666,
+      "contribution": 1.0408
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 17387.93592521263,
+      "contribution": 0.9259
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 286,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": false,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-05",
+    "dataset": "HI-Small",
+    "account_id": 478838,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 3882458,
+      "timestamp": "2022-09-08T06:35:00",
+      "direction": "in",
+      "counterparty_id": 122471,
+      "amount_usd": 1831.49,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 3882453,
+      "timestamp": "2022-09-08T06:41:00",
+      "direction": "in",
+      "counterparty_id": 271735,
+      "amount_usd": 4190.5,
+      "payment_format": "ACH",
+      "description": "Invoice payment"
+     },
+     {
+      "tx_id": 3882456,
+      "timestamp": "2022-09-08T06:42:00",
+      "direction": "in",
+      "counterparty_id": 26155,
+      "amount_usd": 2818.34,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 3882454,
+      "timestamp": "2022-09-08T06:50:00",
+      "direction": "in",
+      "counterparty_id": 481725,
+      "amount_usd": 1939.79,
+      "payment_format": "ACH",
+      "description": "Groceries"
+     },
+     {
+      "tx_id": 3882455,
+      "timestamp": "2022-09-08T06:54:00",
+      "direction": "in",
+      "counterparty_id": 270778,
+      "amount_usd": 4953.15,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 3882457,
+      "timestamp": "2022-09-08T06:56:00",
+      "direction": "in",
+      "counterparty_id": 112831,
+      "amount_usd": 1654.66,
+      "payment_format": "ACH",
+      "description": "Groceries"
+     },
+     {
+      "tx_id": 4483009,
+      "timestamp": "2022-09-09T09:14:00",
+      "direction": "in",
+      "counterparty_id": 427137,
+      "amount_usd": 624.1,
+      "payment_format": "Cheque",
+      "description": ""
+     }
+    ],
+    "risk_probability": 0.196078,
+    "reason_codes": [
+     "distinct_senders_24h",
+     "ach_inflow_share",
+     "inflow_usd_24h"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-05",
+    "account_id": 478838,
+    "summary": "Account 478838 has 6 ACH transfers in the window, from 6 distinct senders and to 0 distinct receivers. The flow shape matches fan-in; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 478838 received 1,831.49 USD by ACH from account 122471 (tx 3882458).",
+      "tx_ids": [
+       3882458
+      ],
+      "amounts_usd": [
+       1831.49
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       478838,
+       122471
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 478838 received 4,190.50 USD by ACH from account 271735 (tx 3882453).",
+      "tx_ids": [
+       3882453
+      ],
+      "amounts_usd": [
+       4190.5
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       478838,
+       271735
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 478838 received 2,818.34 USD by ACH from account 26155 (tx 3882456).",
+      "tx_ids": [
+       3882456
+      ],
+      "amounts_usd": [
+       2818.34
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       478838,
+       26155
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 478838 received 1,939.79 USD by ACH from account 481725 (tx 3882454).",
+      "tx_ids": [
+       3882454
+      ],
+      "amounts_usd": [
+       1939.79
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       478838,
+       481725
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 478838 received 4,953.15 USD by ACH from account 270778 (tx 3882455).",
+      "tx_ids": [
+       3882455
+      ],
+      "amounts_usd": [
+       4953.15
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       478838,
+       270778
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 478838 received 1,654.66 USD by ACH from account 112831 (tx 3882457).",
+      "tx_ids": [
+       3882457
+      ],
+      "amounts_usd": [
+       1654.66
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       478838,
+       112831
+      ]
+     }
+    ],
+    "typology": "FAN-IN",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-06",
+   "kind": "alerted",
+   "account_id": 70084,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 70084,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.172414,
+    "probability_capped": false,
+    "raw_score": 0.210625,
+    "reasons": [
+     {
+      "feature": "distinct_senders_24h",
+      "value": 20.0,
+      "contribution": 1.9095
+     },
+     {
+      "feature": "ach_inflow_share",
+      "value": 1.0,
+      "contribution": 0.9278
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 61637.16999999999,
+      "contribution": 0.9056
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 357,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": false,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-06",
+    "dataset": "HI-Small",
+    "account_id": 70084,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 4021870,
+      "timestamp": "2022-09-08T14:02:00",
+      "direction": "in",
+      "counterparty_id": 163424,
+      "amount_usd": 3670.56,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 4021876,
+      "timestamp": "2022-09-08T14:02:00",
+      "direction": "in",
+      "counterparty_id": 310557,
+      "amount_usd": 3894.65,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021875,
+      "timestamp": "2022-09-08T14:08:00",
+      "direction": "in",
+      "counterparty_id": 232940,
+      "amount_usd": 4690.58,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021873,
+      "timestamp": "2022-09-08T14:10:00",
+      "direction": "in",
+      "counterparty_id": 261918,
+      "amount_usd": 3920.34,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021879,
+      "timestamp": "2022-09-08T14:11:00",
+      "direction": "in",
+      "counterparty_id": 209348,
+      "amount_usd": 2290.51,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021874,
+      "timestamp": "2022-09-08T14:15:00",
+      "direction": "in",
+      "counterparty_id": 10050,
+      "amount_usd": 1699.64,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021882,
+      "timestamp": "2022-09-08T14:16:00",
+      "direction": "in",
+      "counterparty_id": 31217,
+      "amount_usd": 4449.7,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021886,
+      "timestamp": "2022-09-08T14:16:00",
+      "direction": "in",
+      "counterparty_id": 261917,
+      "amount_usd": 940.92,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021868,
+      "timestamp": "2022-09-08T14:18:00",
+      "direction": "in",
+      "counterparty_id": 147929,
+      "amount_usd": 4266.85,
+      "payment_format": "ACH",
+      "description": "Birthday gift"
+     },
+     {
+      "tx_id": 4021872,
+      "timestamp": "2022-09-08T14:19:00",
+      "direction": "in",
+      "counterparty_id": 171379,
+      "amount_usd": 1374.57,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021881,
+      "timestamp": "2022-09-08T14:19:00",
+      "direction": "in",
+      "counterparty_id": 190604,
+      "amount_usd": 4534.64,
+      "payment_format": "ACH",
+      "description": "School fees"
+     },
+     {
+      "tx_id": 4021884,
+      "timestamp": "2022-09-08T14:20:00",
+      "direction": "in",
+      "counterparty_id": 143439,
+      "amount_usd": 3723.61,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021878,
+      "timestamp": "2022-09-08T14:21:00",
+      "direction": "in",
+      "counterparty_id": 158380,
+      "amount_usd": 2940.56,
+      "payment_format": "ACH",
+      "description": "Birthday gift"
+     },
+     {
+      "tx_id": 4021885,
+      "timestamp": "2022-09-08T14:25:00",
+      "direction": "in",
+      "counterparty_id": 142622,
+      "amount_usd": 4916.81,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 4021877,
+      "timestamp": "2022-09-08T14:26:00",
+      "direction": "in",
+      "counterparty_id": 280596,
+      "amount_usd": 2348.92,
+      "payment_format": "ACH",
+      "description": "School fees"
+     },
+     {
+      "tx_id": 4021871,
+      "timestamp": "2022-09-08T14:27:00",
+      "direction": "in",
+      "counterparty_id": 29705,
+      "amount_usd": 2371.63,
+      "payment_format": "ACH",
+      "description": "Loan repayment"
+     },
+     {
+      "tx_id": 4021887,
+      "timestamp": "2022-09-08T14:27:00",
+      "direction": "in",
+      "counterparty_id": 189192,
+      "amount_usd": 1730.29,
+      "payment_format": "ACH",
+      "description": "Freelance work"
+     },
+     {
+      "tx_id": 4021869,
+      "timestamp": "2022-09-08T14:28:00",
+      "direction": "in",
+      "counterparty_id": 250856,
+      "amount_usd": 1182.28,
+      "payment_format": "ACH",
+      "description": "Supplier payment"
+     },
+     {
+      "tx_id": 4021883,
+      "timestamp": "2022-09-08T14:28:00",
+      "direction": "in",
+      "counterparty_id": 224637,
+      "amount_usd": 2916.42,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4021880,
+      "timestamp": "2022-09-08T14:29:00",
+      "direction": "in",
+      "counterparty_id": 25389,
+      "amount_usd": 3773.69,
+      "payment_format": "ACH",
+      "description": "School fees"
+     }
+    ],
+    "risk_probability": 0.172414,
+    "reason_codes": [
+     "distinct_senders_24h",
+     "ach_inflow_share",
+     "inflow_usd_24h"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-06",
+    "account_id": 70084,
+    "summary": "Account 70084 has 20 ACH transfers in the window, from 20 distinct senders and to 0 distinct receivers. The flow shape matches fan-in; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 70084 received 4,690.58 USD by ACH from account 232940 (tx 4021875).",
+      "tx_ids": [
+       4021875
+      ],
+      "amounts_usd": [
+       4690.58
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       70084,
+       232940
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 70084 received 3,920.34 USD by ACH from account 261918 (tx 4021873).",
+      "tx_ids": [
+       4021873
+      ],
+      "amounts_usd": [
+       3920.34
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       70084,
+       261918
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 70084 received 4,449.70 USD by ACH from account 31217 (tx 4021882).",
+      "tx_ids": [
+       4021882
+      ],
+      "amounts_usd": [
+       4449.7
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       70084,
+       31217
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 70084 received 4,266.85 USD by ACH from account 147929 (tx 4021868).",
+      "tx_ids": [
+       4021868
+      ],
+      "amounts_usd": [
+       4266.85
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       70084,
+       147929
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 70084 received 4,534.64 USD by ACH from account 190604 (tx 4021881).",
+      "tx_ids": [
+       4021881
+      ],
+      "amounts_usd": [
+       4534.64
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       70084,
+       190604
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 70084 received 4,916.81 USD by ACH from account 142622 (tx 4021885).",
+      "tx_ids": [
+       4021885
+      ],
+      "amounts_usd": [
+       4916.81
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       70084,
+       142622
+      ]
+     }
+    ],
+    "typology": "FAN-IN",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-07",
+   "kind": "alerted",
+   "account_id": 266519,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 266519,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.136842,
+    "probability_capped": false,
+    "raw_score": 0.172189,
+    "reasons": [
+     {
+      "feature": "distinct_senders_24h",
+      "value": 31.0,
+      "contribution": 1.9069
+     },
+     {
+      "feature": "ach_inflow_share",
+      "value": 1.0,
+      "contribution": 0.9104
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 1433475.2100000007,
+      "contribution": 0.8739
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 429,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": false,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-07",
+    "dataset": "HI-Small",
+    "account_id": 266519,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 4092049,
+      "timestamp": "2022-09-08T17:32:00",
+      "direction": "in",
+      "counterparty_id": 110616,
+      "amount_usd": 3401.46,
+      "payment_format": "ACH",
+      "description": "Rent"
+     },
+     {
+      "tx_id": 4092045,
+      "timestamp": "2022-09-08T17:34:00",
+      "direction": "in",
+      "counterparty_id": 504436,
+      "amount_usd": 2539.07,
+      "payment_format": "ACH",
+      "description": "School fees"
+     },
+     {
+      "tx_id": 4092046,
+      "timestamp": "2022-09-08T17:35:00",
+      "direction": "in",
+      "counterparty_id": 163564,
+      "amount_usd": 943767.1,
+      "payment_format": "ACH",
+      "description": "Freelance work"
+     },
+     {
+      "tx_id": 4092029,
+      "timestamp": "2022-09-08T17:36:00",
+      "direction": "in",
+      "counterparty_id": 275320,
+      "amount_usd": 2247.4,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 4092055,
+      "timestamp": "2022-09-08T17:37:00",
+      "direction": "in",
+      "counterparty_id": 253318,
+      "amount_usd": 2417.18,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4092033,
+      "timestamp": "2022-09-08T17:38:00",
+      "direction": "in",
+      "counterparty_id": 180827,
+      "amount_usd": 415180.78,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4092028,
+      "timestamp": "2022-09-08T17:39:00",
+      "direction": "in",
+      "counterparty_id": 96879,
+      "amount_usd": 4520.98,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4092041,
+      "timestamp": "2022-09-08T17:39:00",
+      "direction": "in",
+      "counterparty_id": 481341,
+      "amount_usd": 4897.95,
+      "payment_format": "ACH",
+      "description": "Groceries"
+     },
+     {
+      "tx_id": 4092037,
+      "timestamp": "2022-09-08T17:41:00",
+      "direction": "in",
+      "counterparty_id": 269518,
+      "amount_usd": 2260.68,
+      "payment_format": "ACH",
+      "description": "Rent"
+     },
+     {
+      "tx_id": 4092043,
+      "timestamp": "2022-09-08T17:41:00",
+      "direction": "in",
+      "counterparty_id": 150597,
+      "amount_usd": 3998.04,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4092039,
+      "timestamp": "2022-09-08T17:44:00",
+      "direction": "in",
+      "counterparty_id": 490649,
+      "amount_usd": 2384.1,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 4092047,
+      "timestamp": "2022-09-08T17:45:00",
+      "direction": "in",
+      "counterparty_id": 118080,
+      "amount_usd": 4088.88,
+      "payment_format": "ACH",
+      "description": "Invoice payment"
+     },
+     {
+      "tx_id": 4092057,
+      "timestamp": "2022-09-08T17:45:00",
+      "direction": "in",
+      "counterparty_id": 490359,
+      "amount_usd": 3238.48,
+      "payment_format": "ACH",
+      "description": "Groceries"
+     },
+     {
+      "tx_id": 4092034,
+      "timestamp": "2022-09-08T17:46:00",
+      "direction": "in",
+      "counterparty_id": 5934,
+      "amount_usd": 3462.49,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4092032,
+      "timestamp": "2022-09-08T17:47:00",
+      "direction": "in",
+      "counterparty_id": 448582,
+      "amount_usd": 4965.62,
+      "payment_format": "ACH",
+      "description": "Groceries"
+     },
+     {
+      "tx_id": 4092030,
+      "timestamp": "2022-09-08T17:49:00",
+      "direction": "in",
+      "counterparty_id": 316823,
+      "amount_usd": 1588.66,
+      "payment_format": "ACH",
+      "description": "Birthday gift"
+     },
+     {
+      "tx_id": 4092027,
+      "timestamp": "2022-09-08T17:50:00",
+      "direction": "in",
+      "counterparty_id": 269811,
+      "amount_usd": 4796.84,
+      "payment_format": "ACH",
+      "description": "Rent"
+     },
+     {
+      "tx_id": 4092052,
+      "timestamp": "2022-09-08T17:51:00",
+      "direction": "in",
+      "counterparty_id": 484169,
+      "amount_usd": 1374.84,
+      "payment_format": "ACH",
+      "description": "Invoice payment"
+     },
+     {
+      "tx_id": 4092054,
+      "timestamp": "2022-09-08T17:51:00",
+      "direction": "in",
+      "counterparty_id": 481241,
+      "amount_usd": 1044.66,
+      "payment_format": "ACH",
+      "description": "Supplier payment"
+     },
+     {
+      "tx_id": 4092040,
+      "timestamp": "2022-09-08T17:55:00",
+      "direction": "in",
+      "counterparty_id": 143590,
+      "amount_usd": 3264.77,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 4092053,
+      "timestamp": "2022-09-08T17:56:00",
+      "direction": "in",
+      "counterparty_id": 131424,
+      "amount_usd": 3817.02,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 4092050,
+      "timestamp": "2022-09-08T17:58:00",
+      "direction": "in",
+      "counterparty_id": 504435,
+      "amount_usd": 1448.62,
+      "payment_format": "ACH",
+      "description": "Phone bill"
+     },
+     {
+      "tx_id": 4092051,
+      "timestamp": "2022-09-08T17:58:00",
+      "direction": "in",
+      "counterparty_id": 461814,
+      "amount_usd": 3908.65,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 4092048,
+      "timestamp": "2022-09-08T17:59:00",
+      "direction": "in",
+      "counterparty_id": 92911,
+      "amount_usd": 2695.37,
+      "payment_format": "ACH",
+      "description": "Invoice payment"
+     },
+     {
+      "tx_id": 4092056,
+      "timestamp": "2022-09-08T17:59:00",
+      "direction": "in",
+      "counterparty_id": 490457,
+      "amount_usd": 3122.62,
+      "payment_format": "ACH",
+      "description": "Invoice payment"
+     }
+    ],
+    "risk_probability": 0.136842,
+    "reason_codes": [
+     "distinct_senders_24h",
+     "ach_inflow_share",
+     "inflow_usd_24h"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-07",
+    "account_id": 266519,
+    "summary": "Account 266519 has 25 ACH transfers in the window, from 25 distinct senders and to 0 distinct receivers. The flow shape matches fan-in; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 266519 received 943,767.10 USD by ACH from account 163564 (tx 4092046).",
+      "tx_ids": [
+       4092046
+      ],
+      "amounts_usd": [
+       943767.1
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       266519,
+       163564
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 266519 received 415,180.78 USD by ACH from account 180827 (tx 4092033).",
+      "tx_ids": [
+       4092033
+      ],
+      "amounts_usd": [
+       415180.78
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       266519,
+       180827
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 266519 received 4,897.95 USD by ACH from account 481341 (tx 4092041).",
+      "tx_ids": [
+       4092041
+      ],
+      "amounts_usd": [
+       4897.95
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       266519,
+       481341
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 266519 received 4,520.98 USD by ACH from account 96879 (tx 4092028).",
+      "tx_ids": [
+       4092028
+      ],
+      "amounts_usd": [
+       4520.98
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       266519,
+       96879
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 266519 received 4,965.62 USD by ACH from account 448582 (tx 4092032).",
+      "tx_ids": [
+       4092032
+      ],
+      "amounts_usd": [
+       4965.62
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       266519,
+       448582
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 266519 received 4,796.84 USD by ACH from account 269811 (tx 4092027).",
+      "tx_ids": [
+       4092027
+      ],
+      "amounts_usd": [
+       4796.84
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       266519,
+       269811
+      ]
+     }
+    ],
+    "typology": "FAN-IN",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-08",
+   "kind": "alerted",
+   "account_id": 190098,
+   "as_of": "2022-09-09",
+   "score": {
+    "account_id": 190098,
+    "as_of": "2022-09-09",
+    "dataset": "HI-Small",
+    "probability": 0.136842,
+    "probability_capped": false,
+    "raw_score": 0.149139,
+    "reasons": [
+     {
+      "feature": "confirmed_mule_senders",
+      "value": 1.0,
+      "contribution": 2.2308
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 6375.14,
+      "contribution": 1.2672
+     },
+     {
+      "feature": "ach_inflow_share",
+      "value": 0.375,
+      "contribution": 0.8307
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 500,
+   "scored_accounts": 250313,
+   "alerted_at_budget": true,
+   "truth": {
+    "confirmed_mule_within_horizon": false,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-08",
+    "dataset": "HI-Small",
+    "account_id": 190098,
+    "window_start": "2022-09-06T00:00:00",
+    "window_end": "2022-09-10T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 3114203,
+      "timestamp": "2022-09-06T17:28:00",
+      "direction": "in",
+      "counterparty_id": 72332,
+      "amount_usd": 240.05,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 3430795,
+      "timestamp": "2022-09-07T08:34:00",
+      "direction": "in",
+      "counterparty_id": 72332,
+      "amount_usd": 240.05,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 3912537,
+      "timestamp": "2022-09-08T08:42:00",
+      "direction": "in",
+      "counterparty_id": 490909,
+      "amount_usd": 6135.09,
+      "payment_format": "ACH",
+      "description": "Birthday gift"
+     },
+     {
+      "tx_id": 4069404,
+      "timestamp": "2022-09-08T16:44:00",
+      "direction": "in",
+      "counterparty_id": 72332,
+      "amount_usd": 240.05,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 4537403,
+      "timestamp": "2022-09-09T11:35:00",
+      "direction": "in",
+      "counterparty_id": 471144,
+      "amount_usd": 329.42,
+      "payment_format": "ACH",
+      "description": "Loan repayment"
+     },
+     {
+      "tx_id": 4724379,
+      "timestamp": "2022-09-09T18:47:00",
+      "direction": "in",
+      "counterparty_id": 72332,
+      "amount_usd": 240.05,
+      "payment_format": "Cheque",
+      "description": ""
+     }
+    ],
+    "risk_probability": 0.136842,
+    "reason_codes": [
+     "confirmed_mule_senders",
+     "inflow_usd_24h",
+     "ach_inflow_share"
+    ],
+    "trace_summary": null
+   },
+   "trace": null,
+   "case_file": {
+    "case_id": "demo-08",
+    "account_id": 190098,
+    "summary": "Account 190098 has 2 ACH transfers in the window, from 2 distinct senders and to 0 distinct receivers. The flow shape matches random; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 190098 received 6,135.09 USD by ACH from account 490909 (tx 3912537).",
+      "tx_ids": [
+       3912537
+      ],
+      "amounts_usd": [
+       6135.09
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       190098,
+       490909
+      ]
+     },
+     {
+      "text": "On 2022-09-09 account 190098 received 329.42 USD by ACH from account 471144 (tx 4537403).",
+      "tx_ids": [
+       4537403
+      ],
+      "amounts_usd": [
+       329.42
+      ],
+      "dates": [
+       "2022-09-09"
+      ],
+      "account_ids": [
+       190098,
+       471144
+      ]
+     }
+    ],
+    "typology": "RANDOM",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-09",
+   "kind": "disputed",
+   "account_id": 306666,
+   "as_of": "2022-09-07",
+   "score": {
+    "account_id": 306666,
+    "as_of": "2022-09-07",
+    "dataset": "HI-Small",
+    "probability": 0.002109,
+    "probability_capped": false,
+    "raw_score": 0.002105,
+    "reasons": [
+     {
+      "feature": "distinct_senders_24h",
+      "value": 3.0,
+      "contribution": 0.4951
+     },
+     {
+      "feature": "inflow_usd_24h",
+      "value": 5474.110000000001,
+      "contribution": 0.4041
+     },
+     {
+      "feature": "distinct_senders_72h",
+      "value": 3.0,
+      "contribution": 0.2193
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 45819,
+   "scored_accounts": 276396,
+   "alerted_at_budget": false,
+   "truth": {
+    "confirmed_mule_within_horizon": true,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-09",
+    "dataset": "HI-Small",
+    "account_id": 306666,
+    "window_start": "2022-09-04T00:00:00",
+    "window_end": "2022-09-08T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 2117713,
+      "timestamp": "2022-09-04T03:09:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2967.27,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 2117712,
+      "timestamp": "2022-09-04T03:19:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2197.83,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 2381093,
+      "timestamp": "2022-09-05T04:02:00",
+      "direction": "in",
+      "counterparty_id": 221388,
+      "amount_usd": 174.31,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 2381094,
+      "timestamp": "2022-09-05T04:25:00",
+      "direction": "in",
+      "counterparty_id": 221388,
+      "amount_usd": 99.9,
+      "payment_format": "Cash",
+      "description": ""
+     },
+     {
+      "tx_id": 2557055,
+      "timestamp": "2022-09-05T13:17:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2967.27,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 2557054,
+      "timestamp": "2022-09-05T13:20:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2197.83,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 2770087,
+      "timestamp": "2022-09-06T00:28:00",
+      "direction": "in",
+      "counterparty_id": 420361,
+      "amount_usd": 34.8,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 2873366,
+      "timestamp": "2022-09-06T04:45:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2967.27,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 2873365,
+      "timestamp": "2022-09-06T04:52:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2197.83,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 3194970,
+      "timestamp": "2022-09-06T21:12:00",
+      "direction": "in",
+      "counterparty_id": 221388,
+      "amount_usd": 99.9,
+      "payment_format": "Cash",
+      "description": ""
+     },
+     {
+      "tx_id": 3194969,
+      "timestamp": "2022-09-06T21:29:00",
+      "direction": "in",
+      "counterparty_id": 221388,
+      "amount_usd": 174.31,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 3342049,
+      "timestamp": "2022-09-07T03:44:00",
+      "direction": "in",
+      "counterparty_id": 56151,
+      "amount_usd": 14764.45,
+      "payment_format": "ACH",
+      "description": "Help with urgent family expense"
+     },
+     {
+      "tx_id": 3355126,
+      "timestamp": "2022-09-07T04:42:00",
+      "direction": "in",
+      "counterparty_id": 221388,
+      "amount_usd": 99.9,
+      "payment_format": "Cash",
+      "description": ""
+     },
+     {
+      "tx_id": 3355125,
+      "timestamp": "2022-09-07T04:56:00",
+      "direction": "in",
+      "counterparty_id": 221388,
+      "amount_usd": 174.31,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 3342051,
+      "timestamp": "2022-09-07T08:13:00",
+      "direction": "out",
+      "counterparty_id": 262471,
+      "amount_usd": 15094.27,
+      "payment_format": "ACH",
+      "description": "Event tickets"
+     },
+     {
+      "tx_id": 3452986,
+      "timestamp": "2022-09-07T09:42:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2197.83,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 3452987,
+      "timestamp": "2022-09-07T09:49:00",
+      "direction": "in",
+      "counterparty_id": 268067,
+      "amount_usd": 2967.27,
+      "payment_format": "Credit Card",
+      "description": ""
+     }
+    ],
+    "risk_probability": 0.002109,
+    "reason_codes": [
+     "distinct_senders_24h",
+     "inflow_usd_24h",
+     "distinct_senders_72h"
+    ],
+    "trace_summary": {
+     "disputed_tx_id": 3342049,
+     "disputed_usd": 14764.45,
+     "recoverable_usd": 14764.45,
+     "left_trace_usd": 0.0,
+     "accounts_reached": 12,
+     "hops_followed": 28,
+     "max_hop_reached": 4,
+     "notes": []
+    }
+   },
+   "trace": {
+    "disputed_tx_id": 3342049,
+    "disputed_usd": 14764.45,
+    "recoverable_usd": 14764.45,
+    "left_trace_usd": 0.0,
+    "accounts_reached": 12,
+    "hops_followed": 28,
+    "max_hop_reached": 4,
+    "notes": [],
+    "hops": [
+     {
+      "hop": 1,
+      "tx_id": 3342051,
+      "timestamp": "2022-09-07T08:13:00",
+      "sender_id": 306666,
+      "receiver_id": 262471,
+      "amount_usd": 15094.273218026523,
+      "tainted_usd": 14764.45
+     },
+     {
+      "hop": 2,
+      "tx_id": 3458596,
+      "timestamp": "2022-09-07T09:36:00",
+      "sender_id": 262471,
+      "receiver_id": 100602,
+      "amount_usd": 73.51912565375238,
+      "tainted_usd": 73.51912565375238
+     },
+     {
+      "hop": 2,
+      "tx_id": 3458595,
+      "timestamp": "2022-09-07T09:55:00",
+      "sender_id": 262471,
+      "receiver_id": 100602,
+      "amount_usd": 352.9836064166634,
+      "tainted_usd": 352.9836064166634
+     },
+     {
+      "hop": 2,
+      "tx_id": 3721921,
+      "timestamp": "2022-09-07T23:03:00",
+      "sender_id": 262471,
+      "receiver_id": 96475,
+      "amount_usd": 136.39344256857882,
+      "tainted_usd": 136.39344256857882
+     },
+     {
+      "hop": 2,
+      "tx_id": 3721922,
+      "timestamp": "2022-09-07T23:08:00",
+      "sender_id": 262471,
+      "receiver_id": 96475,
+      "amount_usd": 472.5027320520782,
+      "tainted_usd": 472.5027320520782
+     },
+     {
+      "hop": 2,
+      "tx_id": 3342053,
+      "timestamp": "2022-09-08T14:03:00",
+      "sender_id": 262471,
+      "receiver_id": 290984,
+      "amount_usd": 15315.27,
+      "tainted_usd": 13729.051093308928
+     },
+     {
+      "hop": 3,
+      "tx_id": 3673270,
+      "timestamp": "2022-09-07T20:51:00",
+      "sender_id": 100602,
+      "receiver_id": 468616,
+      "amount_usd": 2663.4754087742954,
+      "tainted_usd": 426.5027320704158
+     },
+     {
+      "hop": 3,
+      "tx_id": 4140204,
+      "timestamp": "2022-09-08T20:03:00",
+      "sender_id": 290984,
+      "receiver_id": 307151,
+      "amount_usd": 12.35,
+      "tainted_usd": 12.35
+     },
+     {
+      "hop": 3,
+      "tx_id": 4140203,
+      "timestamp": "2022-09-08T20:13:00",
+      "sender_id": 290984,
+      "receiver_id": 307151,
+      "amount_usd": 29.51,
+      "tainted_usd": 29.51
+     },
+     {
+      "hop": 3,
+      "tx_id": 4156297,
+      "timestamp": "2022-09-08T20:44:00",
+      "sender_id": 96475,
+      "receiver_id": 262768,
+      "amount_usd": 143.94535513387433,
+      "tainted_usd": 143.94535513387433
+     },
+     {
+      "hop": 3,
+      "tx_id": 4156296,
+      "timestamp": "2022-09-08T20:50:00",
+      "sender_id": 96475,
+      "receiver_id": 262768,
+      "amount_usd": 76.93989067971114,
+      "tainted_usd": 76.93989067971114
+     },
+     {
+      "hop": 3,
+      "tx_id": 4365540,
+      "timestamp": "2022-09-09T05:03:00",
+      "sender_id": 290984,
+      "receiver_id": 113308,
+      "amount_usd": 1360.11,
+      "tainted_usd": 1360.11
+     },
+     {
+      "hop": 3,
+      "tx_id": 4365539,
+      "timestamp": "2022-09-09T05:08:00",
+      "sender_id": 290984,
+      "receiver_id": 113308,
+      "amount_usd": 3012.8,
+      "tainted_usd": 3012.8
+     },
+     {
+      "hop": 3,
+      "tx_id": 4522521,
+      "timestamp": "2022-09-09T10:38:00",
+      "sender_id": 96475,
+      "receiver_id": 262768,
+      "amount_usd": 143.94535513387433,
+      "tainted_usd": 143.94535513387433
+     },
+     {
+      "hop": 3,
+      "tx_id": 4522520,
+      "timestamp": "2022-09-09T10:40:00",
+      "sender_id": 96475,
+      "receiver_id": 262768,
+      "amount_usd": 76.93989067971114,
+      "tainted_usd": 76.93989067971114
+     },
+     {
+      "hop": 3,
+      "tx_id": 4634393,
+      "timestamp": "2022-09-09T15:17:00",
+      "sender_id": 290984,
+      "receiver_id": 170168,
+      "amount_usd": 46.81,
+      "tainted_usd": 46.81
+     },
+     {
+      "hop": 3,
+      "tx_id": 4634392,
+      "timestamp": "2022-09-09T15:18:00",
+      "sender_id": 290984,
+      "receiver_id": 170168,
+      "amount_usd": 27.56,
+      "tainted_usd": 27.56
+     },
+     {
+      "hop": 3,
+      "tx_id": 4859891,
+      "timestamp": "2022-09-09T23:44:00",
+      "sender_id": 290984,
+      "receiver_id": 307151,
+      "amount_usd": 12.35,
+      "tainted_usd": 12.35
+     },
+     {
+      "hop": 3,
+      "tx_id": 4859890,
+      "timestamp": "2022-09-09T23:48:00",
+      "sender_id": 290984,
+      "receiver_id": 307151,
+      "amount_usd": 29.51,
+      "tainted_usd": 29.51
+     },
+     {
+      "hop": 3,
+      "tx_id": 4889627,
+      "timestamp": "2022-09-10T00:32:00",
+      "sender_id": 290984,
+      "receiver_id": 307151,
+      "amount_usd": 29.51,
+      "tainted_usd": 29.51
+     },
+     {
+      "hop": 3,
+      "tx_id": 4889628,
+      "timestamp": "2022-09-10T00:56:00",
+      "sender_id": 290984,
+      "receiver_id": 307151,
+      "amount_usd": 12.35,
+      "tainted_usd": 12.35
+     },
+     {
+      "hop": 3,
+      "tx_id": 5015489,
+      "timestamp": "2022-09-10T16:07:00",
+      "sender_id": 290984,
+      "receiver_id": 170168,
+      "amount_usd": 46.81,
+      "tainted_usd": 46.81
+     },
+     {
+      "hop": 3,
+      "tx_id": 5015488,
+      "timestamp": "2022-09-10T16:14:00",
+      "sender_id": 290984,
+      "receiver_id": 170168,
+      "amount_usd": 27.56,
+      "tainted_usd": 27.56
+     },
+     {
+      "hop": 3,
+      "tx_id": 5066213,
+      "timestamp": "2022-09-10T22:07:00",
+      "sender_id": 96475,
+      "receiver_id": 262768,
+      "amount_usd": 76.93989067971114,
+      "tainted_usd": 76.93989067971114
+     },
+     {
+      "hop": 3,
+      "tx_id": 5066214,
+      "timestamp": "2022-09-10T22:18:00",
+      "sender_id": 96475,
+      "receiver_id": 262768,
+      "amount_usd": 143.94535513387433,
+      "tainted_usd": 90.18579231377498
+     }
+    ]
+   },
+   "case_file": {
+    "case_id": "demo-09",
+    "account_id": 306666,
+    "summary": "Account 306666 has 2 ACH transfers in the window, from 1 distinct sender and to 1 distinct receiver. The flow shape matches stack; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-07 account 306666 received 14,764.45 USD by ACH from account 56151 (tx 3342049).",
+      "tx_ids": [
+       3342049
+      ],
+      "amounts_usd": [
+       14764.45
+      ],
+      "dates": [
+       "2022-09-07"
+      ],
+      "account_ids": [
+       306666,
+       56151
+      ]
+     },
+     {
+      "text": "On 2022-09-07 account 306666 sent 15,094.27 USD by ACH to account 262471 (tx 3342051).",
+      "tx_ids": [
+       3342051
+      ],
+      "amounts_usd": [
+       15094.27
+      ],
+      "dates": [
+       "2022-09-07"
+      ],
+      "account_ids": [
+       306666,
+       262471
+      ]
+     }
+    ],
+    "typology": "STACK",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-10",
+   "kind": "disputed",
+   "account_id": 56194,
+   "as_of": "2022-09-07",
+   "score": {
+    "account_id": 56194,
+    "as_of": "2022-09-07",
+    "dataset": "HI-Small",
+    "probability": 0.001107,
+    "probability_capped": false,
+    "raw_score": 0.000838,
+    "reasons": [
+     {
+      "feature": "median_hours_to_forward",
+      "value": 41.083333333333336,
+      "contribution": 0.464
+     },
+     {
+      "feature": "pass_through_ratio_72h",
+      "value": 28.24429601607755,
+      "contribution": 0.2698
+     },
+     {
+      "feature": "outflow_usd_24h",
+      "value": 95567.4,
+      "contribution": 0.2442
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 112841,
+   "scored_accounts": 276396,
+   "alerted_at_budget": false,
+   "truth": {
+    "confirmed_mule_within_horizon": true,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-10",
+    "dataset": "HI-Small",
+    "account_id": 56194,
+    "window_start": "2022-09-04T00:00:00",
+    "window_end": "2022-09-08T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 2313378,
+      "timestamp": "2022-09-05T00:30:00",
+      "direction": "out",
+      "counterparty_id": 154967,
+      "amount_usd": 29566.17,
+      "payment_format": "ACH",
+      "description": "Supplier payment"
+     },
+     {
+      "tx_id": 2313377,
+      "timestamp": "2022-09-05T00:42:00",
+      "direction": "out",
+      "counterparty_id": 154967,
+      "amount_usd": 66001.23,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 2331969,
+      "timestamp": "2022-09-05T01:38:00",
+      "direction": "in",
+      "counterparty_id": 20512,
+      "amount_usd": 330.56,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 2331970,
+      "timestamp": "2022-09-05T01:55:00",
+      "direction": "in",
+      "counterparty_id": 20512,
+      "amount_usd": 3053.04,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 2863463,
+      "timestamp": "2022-09-06T04:00:00",
+      "direction": "in",
+      "counterparty_id": 20512,
+      "amount_usd": 3053.04,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 2863462,
+      "timestamp": "2022-09-06T04:15:00",
+      "direction": "in",
+      "counterparty_id": 20512,
+      "amount_usd": 330.56,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 3156415,
+      "timestamp": "2022-09-06T19:00:00",
+      "direction": "out",
+      "counterparty_id": 154967,
+      "amount_usd": 66001.23,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 3156416,
+      "timestamp": "2022-09-06T19:13:00",
+      "direction": "out",
+      "counterparty_id": 154967,
+      "amount_usd": 29566.17,
+      "payment_format": "ACH",
+      "description": "Phone bill"
+     },
+     {
+      "tx_id": 3423787,
+      "timestamp": "2022-09-07T08:23:00",
+      "direction": "in",
+      "counterparty_id": 420605,
+      "amount_usd": 28653.16,
+      "payment_format": "ACH",
+      "description": "Freelance work"
+     },
+     {
+      "tx_id": 3462632,
+      "timestamp": "2022-09-07T10:12:00",
+      "direction": "in",
+      "counterparty_id": 420605,
+      "amount_usd": 3689.29,
+      "payment_format": "ACH",
+      "description": "Help with urgent family expense"
+     },
+     {
+      "tx_id": 3462631,
+      "timestamp": "2022-09-07T10:18:00",
+      "direction": "in",
+      "counterparty_id": 20512,
+      "amount_usd": 3053.04,
+      "payment_format": "Credit Card",
+      "description": ""
+     },
+     {
+      "tx_id": 3462630,
+      "timestamp": "2022-09-07T10:22:00",
+      "direction": "in",
+      "counterparty_id": 20512,
+      "amount_usd": 330.56,
+      "payment_format": "Cheque",
+      "description": ""
+     },
+     {
+      "tx_id": 3629658,
+      "timestamp": "2022-09-07T18:30:00",
+      "direction": "out",
+      "counterparty_id": 154967,
+      "amount_usd": 29566.17,
+      "payment_format": "ACH",
+      "description": "Birthday gift"
+     },
+     {
+      "tx_id": 3629657,
+      "timestamp": "2022-09-07T18:48:00",
+      "direction": "out",
+      "counterparty_id": 154967,
+      "amount_usd": 66001.23,
+      "payment_format": "Cheque",
+      "description": ""
+     }
+    ],
+    "risk_probability": 0.001107,
+    "reason_codes": [
+     "median_hours_to_forward",
+     "pass_through_ratio_72h",
+     "outflow_usd_24h"
+    ],
+    "trace_summary": {
+     "disputed_tx_id": 3462632,
+     "disputed_usd": 3689.29,
+     "recoverable_usd": 3689.29,
+     "left_trace_usd": 0.0,
+     "accounts_reached": 2,
+     "hops_followed": 1,
+     "max_hop_reached": 1,
+     "notes": []
+    }
+   },
+   "trace": {
+    "disputed_tx_id": 3462632,
+    "disputed_usd": 3689.29,
+    "recoverable_usd": 3689.29,
+    "left_trace_usd": 0.0,
+    "accounts_reached": 2,
+    "hops_followed": 1,
+    "max_hop_reached": 1,
+    "notes": [],
+    "hops": [
+     {
+      "hop": 1,
+      "tx_id": 3629658,
+      "timestamp": "2022-09-07T18:30:00",
+      "sender_id": 56194,
+      "receiver_id": 154967,
+      "amount_usd": 29566.17,
+      "tainted_usd": 3689.29
+     }
+    ]
+   },
+   "case_file": {
+    "case_id": "demo-10",
+    "account_id": 56194,
+    "summary": "Account 56194 has 5 ACH transfers in the window, from 1 distinct sender and to 1 distinct receiver. The flow shape matches stack; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-05 account 56194 sent 29,566.17 USD by ACH to account 154967 (tx 2313378).",
+      "tx_ids": [
+       2313378
+      ],
+      "amounts_usd": [
+       29566.17
+      ],
+      "dates": [
+       "2022-09-05"
+      ],
+      "account_ids": [
+       56194,
+       154967
+      ]
+     },
+     {
+      "text": "On 2022-09-06 account 56194 sent 29,566.17 USD by ACH to account 154967 (tx 3156416).",
+      "tx_ids": [
+       3156416
+      ],
+      "amounts_usd": [
+       29566.17
+      ],
+      "dates": [
+       "2022-09-06"
+      ],
+      "account_ids": [
+       56194,
+       154967
+      ]
+     },
+     {
+      "text": "On 2022-09-07 account 56194 received 28,653.16 USD by ACH from account 420605 (tx 3423787).",
+      "tx_ids": [
+       3423787
+      ],
+      "amounts_usd": [
+       28653.16
+      ],
+      "dates": [
+       "2022-09-07"
+      ],
+      "account_ids": [
+       56194,
+       420605
+      ]
+     },
+     {
+      "text": "On 2022-09-07 account 56194 received 3,689.29 USD by ACH from account 420605 (tx 3462632).",
+      "tx_ids": [
+       3462632
+      ],
+      "amounts_usd": [
+       3689.29
+      ],
+      "dates": [
+       "2022-09-07"
+      ],
+      "account_ids": [
+       56194,
+       420605
+      ]
+     },
+     {
+      "text": "On 2022-09-07 account 56194 sent 29,566.17 USD by ACH to account 154967 (tx 3629658).",
+      "tx_ids": [
+       3629658
+      ],
+      "amounts_usd": [
+       29566.17
+      ],
+      "dates": [
+       "2022-09-07"
+      ],
+      "account_ids": [
+       56194,
+       154967
+      ]
+     }
+    ],
+    "typology": "STACK",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-11",
+   "kind": "disputed",
+   "account_id": 16640,
+   "as_of": "2022-09-08",
+   "score": {
+    "account_id": 16640,
+    "as_of": "2022-09-08",
+    "dataset": "HI-Small",
+    "probability": 0.000791,
+    "probability_capped": false,
+    "raw_score": 0.00053,
+    "reasons": [
+     {
+      "feature": "ach_inflow_share",
+      "value": 0.5,
+      "contribution": 0.2492
+     },
+     {
+      "feature": "sender_mean_pagerank",
+      "value": 0.5294077382779929,
+      "contribution": 0.2492
+     },
+     {
+      "feature": "inflow_usd_168h",
+      "value": 306.9567362115308,
+      "contribution": 0.2215
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 179779,
+   "scored_accounts": 277651,
+   "alerted_at_budget": false,
+   "truth": {
+    "confirmed_mule_within_horizon": true,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-11",
+    "dataset": "HI-Small",
+    "account_id": 16640,
+    "window_start": "2022-09-05T00:00:00",
+    "window_end": "2022-09-09T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 3977874,
+      "timestamp": "2022-09-08T11:40:00",
+      "direction": "in",
+      "counterparty_id": 1159,
+      "amount_usd": 11263.86,
+      "payment_format": "ACH",
+      "description": "Birthday gift"
+     },
+     {
+      "tx_id": 3977869,
+      "timestamp": "2022-09-08T11:49:00",
+      "direction": "in",
+      "counterparty_id": 6471,
+      "amount_usd": 28311.6,
+      "payment_format": "ACH",
+      "description": "Invoice payment"
+     },
+     {
+      "tx_id": 3977875,
+      "timestamp": "2022-09-08T11:51:00",
+      "direction": "in",
+      "counterparty_id": 1160,
+      "amount_usd": 35390.61,
+      "payment_format": "ACH",
+      "description": "Invoice payment"
+     },
+     {
+      "tx_id": 3977870,
+      "timestamp": "2022-09-08T11:54:00",
+      "direction": "in",
+      "counterparty_id": 16641,
+      "amount_usd": 29399.82,
+      "payment_format": "ACH",
+      "description": ""
+     },
+     {
+      "tx_id": 3977871,
+      "timestamp": "2022-09-08T11:57:00",
+      "direction": "in",
+      "counterparty_id": 192540,
+      "amount_usd": 30186.92,
+      "payment_format": "ACH",
+      "description": "Dinner split"
+     },
+     {
+      "tx_id": 3977872,
+      "timestamp": "2022-09-08T11:57:00",
+      "direction": "in",
+      "counterparty_id": 186031,
+      "amount_usd": 44088.24,
+      "payment_format": "ACH",
+      "description": "Birthday gift"
+     },
+     {
+      "tx_id": 3977873,
+      "timestamp": "2022-09-08T11:59:00",
+      "direction": "in",
+      "counterparty_id": 12069,
+      "amount_usd": 27145.23,
+      "payment_format": "ACH",
+      "description": "Registration fee for remote job"
+     }
+    ],
+    "risk_probability": 0.000791,
+    "reason_codes": [
+     "ach_inflow_share",
+     "sender_mean_pagerank",
+     "inflow_usd_168h"
+    ],
+    "trace_summary": {
+     "disputed_tx_id": 3977873,
+     "disputed_usd": 27145.23,
+     "recoverable_usd": 27145.23,
+     "left_trace_usd": 0.0,
+     "accounts_reached": 1,
+     "hops_followed": 0,
+     "max_hop_reached": 0,
+     "notes": []
+    }
+   },
+   "trace": {
+    "disputed_tx_id": 3977873,
+    "disputed_usd": 27145.23,
+    "recoverable_usd": 27145.23,
+    "left_trace_usd": 0.0,
+    "accounts_reached": 1,
+    "hops_followed": 0,
+    "max_hop_reached": 0,
+    "notes": [],
+    "hops": []
+   },
+   "case_file": {
+    "case_id": "demo-11",
+    "account_id": 16640,
+    "summary": "Account 16640 has 7 ACH transfers in the window, from 7 distinct senders and to 0 distinct receivers. The flow shape matches fan-in; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 16640 received 28,311.60 USD by ACH from account 6471 (tx 3977869).",
+      "tx_ids": [
+       3977869
+      ],
+      "amounts_usd": [
+       28311.6
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       16640,
+       6471
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 16640 received 35,390.61 USD by ACH from account 1160 (tx 3977875).",
+      "tx_ids": [
+       3977875
+      ],
+      "amounts_usd": [
+       35390.61
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       16640,
+       1160
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 16640 received 29,399.82 USD by ACH from account 16641 (tx 3977870).",
+      "tx_ids": [
+       3977870
+      ],
+      "amounts_usd": [
+       29399.82
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       16640,
+       16641
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 16640 received 44,088.24 USD by ACH from account 186031 (tx 3977872).",
+      "tx_ids": [
+       3977872
+      ],
+      "amounts_usd": [
+       44088.24
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       16640,
+       186031
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 16640 received 30,186.92 USD by ACH from account 192540 (tx 3977871).",
+      "tx_ids": [
+       3977871
+      ],
+      "amounts_usd": [
+       30186.92
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       16640,
+       192540
+      ]
+     },
+     {
+      "text": "On 2022-09-08 account 16640 received 27,145.23 USD by ACH from account 12069 (tx 3977873).",
+      "tx_ids": [
+       3977873
+      ],
+      "amounts_usd": [
+       27145.23
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       16640,
+       12069
+      ]
+     }
+    ],
+    "typology": "FAN-IN",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  },
+  {
+   "case_id": "demo-12",
+   "kind": "disputed",
+   "account_id": 306867,
+   "as_of": "2022-09-08",
+   "score": {
+    "account_id": 306867,
+    "as_of": "2022-09-08",
+    "dataset": "HI-Small",
+    "probability": 0.004318,
+    "probability_capped": false,
+    "raw_score": 0.004323,
+    "reasons": [
+     {
+      "feature": "sender_mean_out_degree",
+      "value": 14230.0,
+      "contribution": 1.264
+     },
+     {
+      "feature": "pagerank",
+      "value": 0.5435780451313504,
+      "contribution": 0.4095
+     },
+     {
+      "feature": "account_age_hours",
+      "value": 167.76666666666665,
+      "contribution": 0.2149
+     }
+    ],
+    "model": "lgbm_tabular_graph",
+    "model_trained_on": [
+     "2022-09-06T00:00:00"
+    ]
+   },
+   "rank": 19017,
+   "scored_accounts": 277651,
+   "alerted_at_budget": false,
+   "truth": {
+    "confirmed_mule_within_horizon": true,
+    "already_active_at_as_of": false
+   },
+   "evidence": {
+    "case_id": "demo-12",
+    "dataset": "HI-Small",
+    "account_id": 306867,
+    "window_start": "2022-09-05T00:00:00",
+    "window_end": "2022-09-09T00:00:00",
+    "transfers": [
+     {
+      "tx_id": 4089358,
+      "timestamp": "2022-09-08T17:33:00",
+      "direction": "in",
+      "counterparty_id": 221651,
+      "amount_usd": 352.4,
+      "payment_format": "ACH",
+      "description": "Registration fee for remote job"
+     }
+    ],
+    "risk_probability": 0.004318,
+    "reason_codes": [
+     "sender_mean_out_degree",
+     "pagerank",
+     "account_age_hours"
+    ],
+    "trace_summary": {
+     "disputed_tx_id": 4089358,
+     "disputed_usd": 352.4,
+     "recoverable_usd": 352.4,
+     "left_trace_usd": 0.0,
+     "accounts_reached": 1,
+     "hops_followed": 0,
+     "max_hop_reached": 0,
+     "notes": []
+    }
+   },
+   "trace": {
+    "disputed_tx_id": 4089358,
+    "disputed_usd": 352.4,
+    "recoverable_usd": 352.4,
+    "left_trace_usd": 0.0,
+    "accounts_reached": 1,
+    "hops_followed": 0,
+    "max_hop_reached": 0,
+    "notes": [],
+    "hops": []
+   },
+   "case_file": {
+    "case_id": "demo-12",
+    "account_id": 306867,
+    "summary": "Account 306867 has 1 ACH transfer in the window, from 1 distinct sender and to 0 distinct receivers. The flow shape matches random; recommended action: hold, pending analyst review.",
+    "claims": [
+     {
+      "text": "On 2022-09-08 account 306867 received 352.40 USD by ACH from account 221651 (tx 4089358).",
+      "tx_ids": [
+       4089358
+      ],
+      "amounts_usd": [
+       352.4
+      ],
+      "dates": [
+       "2022-09-08"
+      ],
+      "account_ids": [
+       306867,
+       221651
+      ]
+     }
+    ],
+    "typology": "RANDOM",
+    "recommended_action": "hold",
+    "policy_refs": [
+     "br-med-2",
+     "muletrace-human-approval"
+    ]
+   },
+   "checker": {
+    "passed": true,
+    "violations": []
+   }
+  }
+ ]
+}
