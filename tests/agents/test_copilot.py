@@ -254,3 +254,12 @@ def test_lambda_draft_reports_delivery_and_violations(
     assert rejected["delivered"] is False
     assert rejected["case_file"] is None
     assert {v["rule"] for v in rejected["violations"]} == {"release_recommended"}
+
+
+def test_template_summary_reads_naturally(evidence: CaseEvidence) -> None:
+    single = evidence.model_copy(update={"transfers": (transfer(1, 10, "in", 11, 100.0),)})
+    assert "1 ACH transfer in the window, from 1 distinct sender and to 0 distinct receivers" in (
+        template_case_file(single).summary
+    )
+    empty = evidence.model_copy(update={"transfers": ()})
+    assert "too little ACH activity" in template_case_file(empty).summary

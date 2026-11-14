@@ -63,6 +63,10 @@ def _claim(transfer: EvidenceTransfer, account_id: int) -> Claim:
     )
 
 
+def _count(number: int, noun: str) -> str:
+    return f"{number} {noun}" if number == 1 else f"{number} {noun}s"
+
+
 def template_case_file(evidence: CaseEvidence, max_claims: int = 6) -> CaseFile:
     """Draft a case file from the evidence structure alone."""
     ach = [t for t in evidence.transfers if t.payment_format == "ACH"]
@@ -71,11 +75,16 @@ def template_case_file(evidence: CaseEvidence, max_claims: int = 6) -> CaseFile:
     largest = sorted(ach or list(evidence.transfers), key=lambda t: -t.amount_usd)[:max_claims]
     claims = [_claim(t, evidence.account_id) for t in sorted(largest, key=lambda t: t.timestamp)]
     senders, receivers = _parties(ach, "in"), _parties(ach, "out")
+    shape = (
+        "There is too little ACH activity to match a typology"
+        if typology == "NONE"
+        else f"The flow shape matches {typology.lower()}"
+    )
     summary = (
-        f"Account {evidence.account_id} has {len(ach)} ACH transfers in the window, from "
-        f"{len(senders)} distinct senders and to {len(receivers)} distinct receivers. "
-        f"The flow shape matches {typology.lower()}; recommended action: {action}, pending "
-        "analyst review."
+        f"Account {evidence.account_id} has {_count(len(ach), 'ACH transfer')} in the window, "
+        f"from {_count(len(senders), 'distinct sender')} and to "
+        f"{_count(len(receivers), 'distinct receiver')}. {shape}; recommended action: {action}, "
+        "pending analyst review."
     )
     return CaseFile(
         case_id=evidence.case_id,
