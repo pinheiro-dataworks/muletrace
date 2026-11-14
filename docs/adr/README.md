@@ -15,6 +15,7 @@ change its decision; a later record supersedes it instead.
 | [008](008-experiment-tracking.md) | Experiment tracking: MLflow when configured, JSON Lines otherwise | Accepted |
 | [009](009-serving-and-parity.md) | Serving: precomputed features, lossless encoding, capped probabilities | Accepted |
 | [010](010-tracer-allocation-rule.md) | Tracer allocation rule: tainted money leaves first, oldest first | Accepted |
+| [011](011-copilot-grounding-and-guardrails.md) | Copilot: structured claims, a deterministic fact checker, and a guardrail with known gaps | Accepted |
 
 Template: *Context* (what forces the decision), *Decision* (what we do), *Consequences*
 (what gets easier, what gets harder, what we would revisit).
