@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import UTC, datetime
+from pathlib import Path
 
 from muletrace.cli._common import (
     PRIMARY_PERIOD_END,
@@ -83,6 +84,19 @@ def _profile(args: argparse.Namespace, settings: Settings) -> int:
     return 0
 
 
+def _export_pix_layer(args: argparse.Namespace, settings: Settings) -> int:
+    from muletrace.data.publish import export_bundle
+
+    manifest = export_bundle(
+        [settings.processed_dir / name for name in args.datasets],
+        Path("docs/pix_layer_dataset_card.md"),
+        Path("data/LICENSES/CDLA-Sharing-1.0.txt"),
+        settings.artifacts_dir / "publish" / "pix-layer",
+    )
+    logger.info("Bundled %d files for publication", len(manifest["files"]))
+    return 0
+
+
 def register(groups: Groups) -> None:
     """Add the ``data`` group."""
     commands = groups.add_parser("data", help="Download, verify and prepare AMLworld")
@@ -93,3 +107,4 @@ def register(groups: Groups) -> None:
     add_command(sub, "prepare", _prepare, "Convert raw files to validated Parquet tables")
     add_command(sub, "simulate-pix", _simulate_pix, "Add the seeded Pix layer to prepared data")
     add_command(sub, "profile", _profile, "Write headline statistics to docs/generated")
+    add_command(sub, "export-pix-layer", _export_pix_layer, "Bundle the Pix layer for publication")
