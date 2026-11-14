@@ -158,3 +158,9 @@ configurable and labels its defaults as assumptions.
 - The Pix layer is a modified version of AMLworld. If it is published, it must be published under
   **CDLA-Sharing-1.0**, with the licence text and a note saying that it is synthetic and derived
   from IBM AMLworld. The raw AMLworld files are not re-published; `make data` downloads them.
+  `muletrace data export-pix-layer` assembles the publication bundle (tables, an account map back
+  to AMLworld's columns, the licence, checksums) with its dataset card,
+  [`pix_layer_dataset_card.md`](pix_layer_dataset_card.md). Uploading it to Hugging Face or
+  Kaggle is an owner action; it has not been published yet.
+- The copilot gold set (`evals/gold_cases/`) and the demo cases (`demo/cases.json`) contain
+  values derived from AMLworld and are shared under CDLA-Sharing-1.0 as well.

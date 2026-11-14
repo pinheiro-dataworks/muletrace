@@ -267,3 +267,16 @@ def test_demo_build_command(workspace: Path, monkeypatch: pytest.MonkeyPatch) ->
         ("demo-01", 7, None),
         ("demo-02", 8, 2),
     ]
+
+
+def test_export_pix_layer_command(workspace: Path) -> None:
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    (workspace / "docs").mkdir()
+    shutil.copy(REPO_ROOT / "docs/pix_layer_dataset_card.md", workspace / "docs")
+    shutil.copytree(REPO_ROOT / "data/LICENSES", workspace / "data/LICENSES")
+    assert cli.main(["data", "prepare", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["data", "simulate-pix", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["data", "export-pix-layer", "--datasets", "HI-Small"]) == 0
+    bundle = workspace / "artifacts/publish/pix-layer"
+    assert (bundle / "README.md").read_text("utf-8").startswith("---\nlicense: cdla-sharing-1.0")
+    assert (bundle / "HI-Small/pix_disputes.parquet").is_file()
