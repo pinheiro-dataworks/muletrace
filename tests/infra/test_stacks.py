@@ -85,3 +85,49 @@ def test_every_resource_is_tagged(stacks: dict[str, object]) -> None:
     template.has_resource_properties(
         "AWS::S3::Bucket", {"Tags": Match.array_with([{"Key": "Project", "Value": "muletrace"}])}
     )
+
+
+def test_copilot_is_guarded_and_scoped_to_one_model(stacks: dict[str, object]) -> None:
+    template = Template.from_stack(stacks["MuleTrace-Agents"])
+    template.has_resource_properties(
+        "AWS::Bedrock::Guardrail",
+        {
+            "ContentPolicyConfig": {
+                "FiltersConfig": [
+                    {"Type": "PROMPT_ATTACK", "InputStrength": "HIGH", "OutputStrength": "NONE"}
+                ]
+            },
+            "TopicPolicyConfig": {
+                "TopicsConfig": [Match.object_like({"Name": "ReleasingFunds", "Type": "DENY"})]
+            },
+        },
+    )
+    template.has_resource_properties(
+        "AWS::Lambda::Function",
+        {
+            "ImageConfig": {"Command": ["muletrace.agents.handler.handler"]},
+            "ReservedConcurrentExecutions": 2,
+            "Environment": {
+                "Variables": Match.object_like({"AGENT_MODEL_ID": "amazon.nova-lite-v1:0"})
+            },
+        },
+    )
+    template.has_resource_properties(
+        "AWS::IAM::Policy",
+        {
+            "PolicyDocument": {
+                "Statement": Match.array_with(
+                    [
+                        Match.object_like(
+                            {
+                                "Action": "bedrock:InvokeModel",
+                                "Resource": Match.string_like_regexp(
+                                    "foundation-model/amazon.nova-lite-v1:0$"
+                                ),
+                            }
+                        )
+                    ]
+                )
+            }
+        },
+    )

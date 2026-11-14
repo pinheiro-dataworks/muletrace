@@ -19,6 +19,7 @@ from cdk_nag import AwsSolutionsChecks
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from infra.stacks.agents import AgentsStack
 from infra.stacks.cost_guards import CostGuardsStack
 from infra.stacks.pipeline import PipelineStack
 from infra.stacks.serving import ServingStack
@@ -53,7 +54,8 @@ def build_app(app: cdk.App) -> list[cdk.Stack]:
         feature_table=storage.feature_table,
         alerts_topic=storage.alerts_topic,
     )
-    stacks: list[cdk.Stack] = [storage, serving, training, pipeline]
+    agents = AgentsStack(app, "MuleTrace-Agents", env=env)
+    stacks: list[cdk.Stack] = [storage, serving, training, pipeline, agents]
     if alert_email:
         stacks.append(
             CostGuardsStack(
