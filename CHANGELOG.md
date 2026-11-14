@@ -6,6 +6,33 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-14
+
+Week 5: operations, documentation and release.
+
+### Added
+- Weekly drift job (PSI and KS in NumPy) with CloudWatch metrics and alarms, `muletrace monitor
+  drift` for local runs, and drift results in the evaluation report.
+- Cost kill switch triggered by AWS Budgets: throttles every function to zero and disables the
+  schedules; a direct call restores them.
+- Monitoring stack (drift Lambda, weekly schedule, alarms, kill switch); seven CDK stacks in all.
+- Static case explorer: twelve cases precomputed by the production code (`muletrace demo build`),
+  published to GitHub Pages by a workflow.
+- Pix-layer publication bundle (`muletrace data export-pix-layer`) and its dataset card under
+  CDLA-Sharing-1.0.
+- Model card, threat model, cost report, ADR-012, week-5 audit, and a README rendered from the
+  generated results.
+
+### Changed
+- `make all` trains the released model and refreshes every report.
+- Every GitHub Action is pinned to a commit SHA; Trivy moves to v0.36.0.
+- Container images install from requirements with SHA-256 hashes.
+- The runbook covers drift response, retraining, rollback and the kill switch.
+
+### Fixed
+- The template baseline's summary pluralises counts and describes empty flows.
+- The container workflow referenced a Trivy action tag that is no longer published.
+
 ## [0.3.0] - 2026-11-14
 
 Week 4: investigation copilot and its evaluation.
