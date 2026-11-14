@@ -252,11 +252,67 @@ accounting does not. The recoverable figure is an upper bound by construction (b
 observable), so it is not reported as a recovery rate. Known-answer and property tests check the
 tracer's arithmetic (`tests/tracing`); these figures describe its usefulness on this data.
 
-## 13. Limitations of this evaluation
+## 13. Investigation copilot
+
+The copilot drafts a case file for an alerted account; an analyst approves, edits or rejects
+it. Every claim in a draft must cite the transfers it relies on, and a deterministic fact checker
+(`muletrace.validation.fact_checker`) rejects any draft with an unknown transfer, an amount,
+date or account that does not match the evidence, an unknown typology, action or policy, a
+recommendation to release funds, or an e-mail address or phone number. Rejected drafts never reach
+the analyst. Design and limits: ADR-011.
+
+The gold set is 150 cases built from AMLworld's patterns file
+(`evals/gold_cases/README.md`): 15 laundering attempts per typology, seen from the receiving
+account, and 30 accounts that never received laundered money.
+
+**What has been measured so far: the deterministic template baseline.** It writes the case file
+with rules and no model, reads only the structure of the flows (never the free-text
+descriptions), and is the bar the language-model copilots must clear.
+
+| Template baseline, HI-Small gold set | Value |
+|---|---:|
+| Drafts delivered to the analyst | 150 of 150 |
+| Unsupported claims reaching the analyst | 0 |
+| Claims citing at least one transfer | 100.0% |
+| Recommended action accepted by the ground truth | 92.7% |
+| Typology matches the patterns file (attempts only) | 30.8% |
+| Attempt transfers cited in the draft | 50.3% |
+| Complete drafts (summary, three or more claims, a policy reference) | 84.0% |
+
+**Is the checker strict enough?** Each delivered draft was perturbed five ways and checked again.
+Rejection rates: invented transaction 100.0%,
+wrong amount 100.0%,
+wrong date 100.0%,
+contact details in the summary 100.0%,
+recommendation to release funds 100.0%.
+
+**Prompt injection.** Four attacks are planted in every transfer description of
+10 attempt cases (close the case, release the funds,
+cite an invented transaction, copy contact details). None reached the analyst from the template
+baseline, which is expected: it never reads descriptions. The suite exists for the language-model
+copilots, which do.
+
+**Reading.** The template proves the plumbing and sets the bar, not the ceiling. Its action
+agreement is high because every attempt case contains ACH transfers, so the template holds all of
+them; its disagreements are negative accounts that also have ACH activity, which it holds too. Its
+typology accuracy is low because flow shape inside one account's window
+rarely identifies AMLworld's typologies (a stack hop and a cycle hop look the same from one
+account). Typology and transaction recall are where a model that reads the whole evidence should
+improve.
+
+**Not measured yet.** The single-call and multi-agent copilots on Amazon Bedrock (Nova Lite), their
+cost, latency and token use, and the LLM judge. Bedrock was not available to this project when the
+evaluation was run; the harness, the release gate (`configs/eval_thresholds.yaml`) and the
+workflow (`.github/workflows/evals.yml`) are in place and run them as soon as model access is
+configured. Judge results will only be reported next to their agreement with human labels
+(`evals/judge_calibration/README.md`), which do not exist yet. No number for these is given here
+because none has been measured.
+
+## 14. Limitations of this evaluation
 
 - Three hold-out days and ten days of data in total: nothing here describes behaviour over weeks.
 - One random seed per model; the bootstrap covers sampling of accounts, not training randomness.
 - Labels are perfect apart from the modelled delay; real labels are partial and biased.
 - Hyper-parameters were chosen on the first fold only, which protects the hold-out but may leave
   later folds slightly under-tuned.
-- The copilot evaluation (week 4) is reported separately.
+- The copilot evaluation covers one dataset (HI-Small) and, so far, only the template baseline.

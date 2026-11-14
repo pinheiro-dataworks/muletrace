@@ -179,3 +179,31 @@ def test_docs_render_command(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(reporting, "render_documents", lambda *args: calls.append(args) or [])
     assert cli.main(["docs", "render"]) == 0
     assert calls[0][0] == Path("docs/templates")
+
+
+def test_copilot_commands(workspace: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from muletrace.cli import copilot  # noqa: PLC0415
+
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    assert cli.main(["data", "prepare", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["data", "simulate-pix", "--datasets", "HI-Small"]) == 0
+    assert cli.main(["copilot", "gold", "--per-typology", "2", "--negatives", "1"]) == 0
+    assert (workspace / "evals/gold_cases/HI-Small.jsonl").is_file()
+    status = cli.main(["copilot", "eval", "--provider", "template", "--smoke"])
+    report = yaml.safe_load(
+        (workspace / "docs/generated/copilot_eval_template_HI-Small_smoke.yaml").read_text("utf-8")
+    )
+    assert status == (0 if report["gate"]["passed"] else 1)
+    assert "delivered_case_files" not in report
+    kept = (workspace / "artifacts/copilot/template_HI-Small.jsonl").read_text("utf-8")
+    assert len(kept.splitlines()) == report["metrics"]["drafts_delivered"]
+
+    created: list[str] = []
+    monkeypatch.setattr("boto3.client", lambda *_, **__: created.append("bedrock") or object())
+    monkeypatch.setenv("BEDROCK_GUARDRAIL_ID", "g-1")
+    client = copilot._bedrock_factory("amazon.nova-lite-v1:0")
+    assert (client.model_id, client.guardrail_id, created) == (
+        "amazon.nova-lite-v1:0",
+        "g-1",
+        ["bedrock"],
+    )

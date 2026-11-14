@@ -1,0 +1,89 @@
+# Regulatory context for the copilot. Every entry is this project's own short summary of a
+# public source, with the URL and the date it was read. Nothing here is a copy of a rule
+# text, and nothing here is legal advice. Nacha Operating Rules are copyrighted: the entry
+# summarises Nacha's public announcement only.
+
+accessed_on: "2026-11-13"
+
+entries:
+  - id: br-med-2
+    title: "Brazil: MED 2.0 extends Pix returns beyond the first receiving account"
+    jurisdiction: BR
+    topics: [return, dispute, tracing, med, pix, hold]
+    summary: >-
+      Resolution BCB 493 (published 28 August 2025) introduced MED 2.0. A funds-recovery request
+      lets the directory trace a disputed Pix beyond the first receiving account and send
+      infraction notices along the most likely paths. Receiving institutions block balances and
+      analyse the notices within up to seven days; accepted notices mark the receiver as a
+      fraudster in DICT, and the payer's institution has up to 72 hours to start the return.
+    source: "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/MED/MED_2-0_Circuito_Pix-Dia_1.pdf"
+
+  - id: br-med-statistics
+    title: "Brazil: how much disputed Pix money is actually returned"
+    jurisdiction: BR
+    topics: [return, dispute, med, statistics, recovery]
+    summary: >-
+      In the twelve months to September 2026, about 12% of the value of accepted MED disputes
+      was returned, and about half of the accepted value could not be returned because the
+      receiving account no longer had the balance.
+    source: "https://olinda.bcb.gov.br/olinda/servico/Pix_DadosAbertos/versao/v1/odata/EstatisticasFraudesPix"
+
+  - id: br-pix-night-limit
+    title: "Brazil: default night-time limit for Pix between individuals"
+    jurisdiction: BR
+    topics: [limit, night, pix, individual]
+    summary: >-
+      By default, Pix transfers between individuals are limited to R$ 1,000 per transfer between
+      20:00 and 06:00; customers can ask their institution to change the limit.
+    source: "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/relatorio_de_gestao_pix/relatorio_gestao_pix_2023.pdf"
+
+  - id: br-aml-law
+    title: "Brazil: the anti-money-laundering law and COAF"
+    jurisdiction: BR
+    topics: [aml, reporting, coaf, law]
+    summary: >-
+      Law 9,613 of 1998 defines money-laundering offences, sets reporting duties for regulated
+      institutions and created COAF, Brazil's financial intelligence unit, which receives
+      suspicious-activity reports.
+    source: "https://www.planalto.gov.br/ccivil_03/leis/l9613.htm"
+
+  - id: uk-app-reimbursement
+    title: "UK: mandatory reimbursement of authorised push payment scams"
+    jurisdiction: UK
+    topics: [reimbursement, scam, app, receiving, liability]
+    summary: >-
+      Since 7 October 2024, payment firms in the UK reimburse victims of authorised push payment
+      scams up to GBP 85,000 per claim, and the sending and receiving firms share the cost
+      equally; firms may apply an excess of up to GBP 100.
+    source: "https://www.financial-ombudsman.org.uk/businesses/complaints-deal/fraud-scams/app-fraud-scams-involving-authorised-payments"
+
+  - id: eu-instant-payments
+    title: "EU: Instant Payments Regulation and verification of payee"
+    jurisdiction: EU
+    topics: [instant, verification, payee, eu]
+    summary: >-
+      Regulation (EU) 2024/886 requires payment service providers in the euro area to offer a
+      verification-of-payee check (name against account identifier) from 9 October 2025, with
+      later dates for Member States outside the euro area.
+    source: "https://www.ecb.europa.eu/paym/retail/instant_payments/html/instant_payments_regulation.en.html"
+
+  - id: us-nacha-fraud-monitoring
+    title: "US: Nacha risk-management rules on fraud monitoring of ACH credits"
+    jurisdiction: US
+    topics: [ach, monitoring, receiving, rdfi, credit]
+    summary: >-
+      New Nacha risk-management rules took effect on 20 March 2026 in a first phase. Among other
+      things, receiving institutions must have risk-based processes to identify credit entries
+      initiated because of fraud; the rules do not require pre-posting monitoring. A second
+      phase extends the requirements to more institutions later in 2026.
+    source: "https://www.nacha.org/news/new-nacha-risk-management-rules-now-effect"
+
+  - id: muletrace-human-approval
+    title: "MuleTrace: every action needs an analyst's approval"
+    jurisdiction: internal
+    topics: [hold, monitor, close, approval, unblock, release]
+    summary: >-
+      The copilot only drafts. Holding, monitoring or closing a case is decided by an analyst,
+      and the copilot never recommends releasing or unblocking funds; that decision belongs to
+      the investigation and the applicable return process.
+    source: "docs/threat_model.md"
