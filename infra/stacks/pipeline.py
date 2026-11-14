@@ -50,6 +50,7 @@ class PipelineStack(Stack):
         }
         build = self._function("BuildSnapshot", image, environment, "build_snapshot_handler")
         score = self._function("ScoreAndPublish", image, environment, "score_and_publish_handler")
+        self.batch_functions = (build, score)
         bucket.grant_read(build, "processed/*")
         bucket.grant_write(build, "snapshots/*")
         bucket.grant_read(score, "snapshots/*")
@@ -106,8 +107,9 @@ class PipelineStack(Stack):
             "SchedulerRole",
             assumed_by=iam.ServicePrincipal("scheduler.amazonaws.com"),
         )
+        self.scheduler_role = role
         self.state_machine.grant_start_execution(role)
-        scheduler.CfnSchedule(
+        self.schedule = scheduler.CfnSchedule(
             self,
             "DailySchedule",
             description="Daily scoring run. Disabled by default: AMLworld has fixed dates.",

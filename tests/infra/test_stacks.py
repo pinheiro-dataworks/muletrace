@@ -131,3 +131,55 @@ def test_copilot_is_guarded_and_scoped_to_one_model(stacks: dict[str, object]) -
             }
         },
     )
+
+
+def test_drift_job_and_alarms(stacks: dict[str, object]) -> None:
+    template = Template.from_stack(stacks["MuleTrace-Monitoring"])
+    template.has_resource_properties(
+        "AWS::Lambda::Function",
+        {"ImageConfig": {"Command": ["muletrace.monitoring.job.handler"]}},
+    )
+    template.has_resource_properties(
+        "AWS::Scheduler::Schedule",
+        {"State": "DISABLED", "ScheduleExpression": "cron(0 7 ? * MON *)"},
+    )
+    template.resource_count_is("AWS::CloudWatch::Alarm", 2)
+    template.has_resource_properties(
+        "AWS::CloudWatch::Alarm",
+        {"MetricName": "ScorePSI", "Namespace": "MuleTrace/Drift", "Threshold": 0.25},
+    )
+
+
+def test_kill_switch_is_wired_to_the_budget(stacks: dict[str, object]) -> None:
+    monitoring = Template.from_stack(stacks["MuleTrace-Monitoring"])
+    monitoring.has_resource_properties(
+        "AWS::Lambda::Function", {"Handler": "muletrace.ops.kill_switch.handler"}
+    )
+    monitoring.has_resource_properties(
+        "AWS::SNS::TopicPolicy",
+        {
+            "PolicyDocument": {
+                "Statement": Match.array_with(
+                    [Match.object_like({"Principal": {"Service": "budgets.amazonaws.com"}})]
+                )
+            }
+        },
+    )
+    monitoring.has_resource_properties("AWS::SNS::Subscription", {"Protocol": "lambda"})
+    guards = Template.from_stack(stacks["MuleTrace-CostGuards"])
+    guards.has_resource_properties(
+        "AWS::Budgets::Budget",
+        {
+            "NotificationsWithSubscribers": Match.array_with(
+                [
+                    Match.object_like(
+                        {
+                            "Subscribers": Match.array_with(
+                                [Match.object_like({"SubscriptionType": "SNS"})]
+                            )
+                        }
+                    )
+                ]
+            )
+        },
+    )

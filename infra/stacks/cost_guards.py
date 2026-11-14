@@ -1,7 +1,8 @@
 """Cost guards: a US$15 budget with alerts, a US$20 deny action and anomaly detection.
 
 AWS has no hard spending cap and billing data lags by hours, so the guards are layered: e-mail
-and SNS alerts at 50% (actual), 80% (forecast) and 100% (actual) of US$15; at US$20 a budget
+and SNS alerts at 50% (actual), 80% (forecast) and 100% (actual) of US$15, where the kill
+switch also stops every function and schedule; at US$20 a budget
 action attaches a deny policy to the deployment role so nothing new can be created; and Cost
 Anomaly Detection watches every service for unusual daily spend.
 """
@@ -24,8 +25,13 @@ ANOMALY_ALERT_USD = 5
 
 
 def _notification(
-    threshold: float, kind: str, email: str
+    threshold: float, kind: str, email: str, topic_arn: str | None = None
 ) -> budgets.CfnBudget.NotificationWithSubscribersProperty:
+    subscribers = [budgets.CfnBudget.SubscriberProperty(subscription_type="EMAIL", address=email)]
+    if topic_arn:
+        subscribers.append(
+            budgets.CfnBudget.SubscriberProperty(subscription_type="SNS", address=topic_arn)
+        )
     return budgets.CfnBudget.NotificationWithSubscribersProperty(
         notification=budgets.CfnBudget.NotificationProperty(
             comparison_operator="GREATER_THAN",
@@ -33,9 +39,7 @@ def _notification(
             threshold=threshold,
             threshold_type="PERCENTAGE",
         ),
-        subscribers=[
-            budgets.CfnBudget.SubscriberProperty(subscription_type="EMAIL", address=email)
-        ],
+        subscribers=subscribers,
     )
 
 
@@ -49,6 +53,7 @@ class CostGuardsStack(Stack):
         *,
         alert_email: str,
         deployment_role_name: str,
+        kill_switch_topic_arn: str | None = None,
         **kwargs: Any,  # noqa: ANN401 - forwarded to cdk.Stack
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -64,7 +69,8 @@ class CostGuardsStack(Stack):
             notifications_with_subscribers=[
                 _notification(50, "ACTUAL", alert_email),
                 _notification(80, "FORECASTED", alert_email),
-                _notification(100, "ACTUAL", alert_email),
+                # Reaching the budget also pulls the kill switch (see the monitoring stack).
+                _notification(100, "ACTUAL", alert_email, kill_switch_topic_arn),
             ],
         )
         self._deny_action(alert_email, deployment_role_name)
