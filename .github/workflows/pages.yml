@@ -19,7 +19,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Job-level permissions replace the workflow's, so checkout needs contents: read again.
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
