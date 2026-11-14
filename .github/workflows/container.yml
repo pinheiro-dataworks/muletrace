@@ -15,14 +15,14 @@ jobs:
     name: build, size and scan the scoring image (arm64)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           python-version: "3.12"
       - name: Export runtime requirements
         run: uv export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - name: Build
         run: docker buildx build --platform linux/arm64 -f docker/lambda.Dockerfile -t muletrace-scorer:ci --load .
       - name: Record image size
@@ -34,7 +34,7 @@ jobs:
           docker run --rm --platform linux/arm64 --entrypoint python muletrace-scorer:ci
           -c "import muletrace.serving.handler, lightgbm; print('imports ok')"
       - name: Vulnerability scan (fail on critical)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: muletrace-scorer:ci
           severity: CRITICAL

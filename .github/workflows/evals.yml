@@ -29,8 +29,8 @@ jobs:
     name: template baseline
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           enable-cache: true
@@ -39,7 +39,7 @@ jobs:
         env:
           SMOKE: ${{ github.event_name == 'pull_request' && '--smoke' || '' }}
         run: uv run muletrace copilot eval --provider template $SMOKE
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: copilot-eval-template
@@ -64,14 +64,14 @@ jobs:
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         if: steps.check.outputs.configured == 'true'
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         if: steps.check.outputs.configured == 'true'
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           enable-cache: true
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
         if: steps.check.outputs.configured == 'true'
         with:
           role-to-assume: ${{ vars.AWS_EVAL_ROLE_ARN }}
@@ -86,7 +86,7 @@ jobs:
           uv run muletrace copilot eval --provider single || status=1
           uv run muletrace copilot eval --provider multi || status=1
           exit "$status"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always() && steps.check.outputs.configured == 'true'
         with:
           name: copilot-eval-bedrock
