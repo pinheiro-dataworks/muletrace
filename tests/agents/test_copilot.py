@@ -1,9 +1,12 @@
 from datetime import datetime
 
 import polars as pl
+import pytest
 
-from muletrace.agents.case import build_evidence
+from muletrace.agents.case import CaseEvidence, build_evidence
+from muletrace.agents.template import classify_typology, template_case_file
 from muletrace.policy.loader import load_policies, lookup, policy_ids
+from tests.agents.conftest import transfer
 from tests.fixtures.frames import transactions_frame
 
 
@@ -54,3 +57,33 @@ def test_build_evidence_keeps_required_transfers_and_time_order() -> None:
     assert wider.transfer(2).description == "Groceries"
     assert wider.transfer(3) is None
     assert "tx_id | time" in wider.prompt_view()
+
+
+@pytest.mark.parametrize(
+    ("shape", "expected"),
+    [
+        ([("in", 1), ("in", 2), ("in", 3), ("out", 9)], "FAN-IN"),
+        ([("in", 1), ("out", 7), ("out", 8), ("out", 9)], "FAN-OUT"),
+        ([("in", 1), ("in", 2), ("out", 8), ("out", 9)], "GATHER-SCATTER"),
+        ([("out", 8), ("out", 9), ("in", 1), ("in", 2)], "SCATTER-GATHER"),
+        ([("in", 1), ("out", 9)], "STACK"),
+        ([("in", 1), ("in", 2)], "RANDOM"),
+        ([], "NONE"),
+    ],
+)
+def test_template_typology_rules(shape: list[tuple[str, int]], expected: str) -> None:
+    transfers = [transfer(i, 10 + i, d, c, 10.0) for i, (d, c) in enumerate(shape)]
+    assert classify_typology(transfers) == expected
+
+
+def test_template_case_file_passes_the_checker(evidence: CaseEvidence) -> None:
+    from muletrace.validation.fact_checker import check_case_file  # noqa: PLC0415
+
+    case_file = template_case_file(evidence)
+    assert case_file.typology == "FAN-IN"
+    assert case_file.recommended_action == "hold"
+    assert check_case_file(case_file, evidence).passed
+    quiet = evidence.model_copy(
+        update={"transfers": (transfer(9, 10, "in", 1, 1.0, fmt="Cheque"),)}
+    )
+    assert template_case_file(quiet).recommended_action == "close"
