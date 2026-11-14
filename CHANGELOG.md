@@ -6,6 +6,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The README and the demo notes link the live case explorer on GitHub Pages.
+
 ### Fixed
 
 - The Pages workflow can check out the repository again: its job-level permissions now
