@@ -19,10 +19,11 @@ from cdk_nag import AwsSolutionsChecks
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from infra.stacks.agents import AgentsStack
+from infra.stacks.agents import COPILOT_CONCURRENCY, AgentsStack
 from infra.stacks.cost_guards import CostGuardsStack
+from infra.stacks.monitoring import MonitoringStack
 from infra.stacks.pipeline import PipelineStack
-from infra.stacks.serving import ServingStack
+from infra.stacks.serving import SCORER_CONCURRENCY, ServingStack
 from infra.stacks.storage import StorageStack
 from infra.stacks.training import TrainingStack
 
@@ -55,7 +56,24 @@ def build_app(app: cdk.App) -> list[cdk.Stack]:
         alerts_topic=storage.alerts_topic,
     )
     agents = AgentsStack(app, "MuleTrace-Agents", env=env)
-    stacks: list[cdk.Stack] = [storage, serving, training, pipeline, agents]
+    build, score = pipeline.batch_functions
+    monitoring = MonitoringStack(
+        app,
+        "MuleTrace-Monitoring",
+        env=env,
+        bucket=storage.bucket,
+        throttled={
+            "scorer": (serving.scorer, SCORER_CONCURRENCY),
+            "replay": (serving.replay_consumer, SCORER_CONCURRENCY),
+            "copilot": (agents.copilot, COPILOT_CONCURRENCY),
+            "build": (build, 1),
+            "score": (score, 1),
+        },
+        daily_schedule=pipeline.schedule,
+        daily_schedule_role=pipeline.scheduler_role,
+        alert_email=alert_email,
+    )
+    stacks: list[cdk.Stack] = [storage, serving, training, pipeline, agents, monitoring]
     if alert_email:
         stacks.append(
             CostGuardsStack(
@@ -65,6 +83,7 @@ def build_app(app: cdk.App) -> list[cdk.Stack]:
                 alert_email=alert_email,
                 deployment_role_name=app.node.try_get_context("deployment_role_name")
                 or "muletrace-github-deploy",
+                kill_switch_topic_arn=monitoring.kill_switch_topic.topic_arn,
             )
         )
 
