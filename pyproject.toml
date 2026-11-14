@@ -1,6 +1,6 @@
 [project]
 name = "muletrace"
-version = "0.0.1"
+version = "1.0.0"
 description = "Receive-side mule-account defence for instant payments: point-in-time graph risk scoring, fund-flow tracing and an evidence-grounded investigation copilot."
 readme = "README.md"
 license = "Apache-2.0"
@@ -15,7 +15,29 @@ classifiers = [
 # Runtime dependencies are kept to what the serving, monitoring and copilot
 # Lambdas need, so the container image stays small. Batch-only libraries live
 # in the `pipeline` extra.
-dependencies = []
+dependencies = [
+    "lightgbm>=4.5",
+    "numpy>=2.1",
+    "pydantic>=2.9",
+    "pyyaml>=6.0.2",
+]
+
+[project.optional-dependencies]
+pipeline = [
+    "pandera[polars]>=0.30",
+    "polars>=2.0",
+    "scikit-learn>=1.6",
+    "scipy>=1.14",
+]
+tracking = [
+    "mlflow-skinny>=3.0",
+]
+aws = [
+    "boto3>=1.35",
+]
+
+[project.scripts]
+muletrace = "muletrace.cli:main"
 
 [dependency-groups]
 dev = [
@@ -32,6 +54,11 @@ dev = [
     "deptry>=0.21",
     "bandit>=1.8",
     "pip-audit>=2.7",
+]
+infra = [
+    "aws-cdk-lib>=2.170",
+    "cdk-nag>=2.34,<3",
+    "constructs>=10.4",
 ]
 notebooks = [
     "jupyter>=1.1",
@@ -91,6 +118,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+filterwarnings = ["error::RuntimeWarning"]
 markers = [
     "integration: tests that touch the local filesystem in larger volumes",
     "perf: micro-benchmarks, excluded from the default run",

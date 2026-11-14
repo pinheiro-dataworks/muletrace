@@ -44,5 +44,69 @@ quality:  ## Complexity, dead code, dependency and security checks
 	$(UV) run bandit -q -c pyproject.toml -r src
 	$(UV) run pip-audit --skip-editable
 
+.PHONY: all
+all: install data baseline features experiments model reports  ## From a fresh clone to a trained, evaluated model
+
 .PHONY: check
 check: lint typecheck test quality  ## Every gate CI runs
+
+# ------------------------------------------------------------------ data and models
+.PHONY: data
+data:  ## Download missing files, verify checksums, prepare Parquet, add the Pix layer, profile
+	$(UV) run muletrace data download
+	$(UV) run muletrace data verify
+	$(UV) run muletrace data prepare
+	$(UV) run muletrace data simulate-pix
+	$(UV) run muletrace data profile
+
+.PHONY: baseline
+baseline:  ## Score the rules baseline on the temporal hold-out
+	$(UV) run muletrace models rules
+
+.PHONY: features
+features:  ## Build and cache point-in-time feature snapshots
+	$(UV) run muletrace features build
+
+.PHONY: experiments
+experiments:  ## Backtest the model ladder, label-delay sweep and the external check
+	$(UV) run muletrace models backtest
+	$(UV) run muletrace models delay-sweep
+	$(UV) run muletrace models transaction-check
+
+.PHONY: model
+model:  ## Train the released model (the backtest's last fold, on every label known)
+	$(UV) run muletrace models train-final
+
+.PHONY: reports
+reports:  ## Tracer, copilot baseline, drift, demo cases and every rendered document
+	$(UV) run muletrace trace evaluate
+	$(UV) run muletrace copilot eval --provider template
+	$(UV) run muletrace monitor drift --days 2022-09-07 2022-09-08 2022-09-09
+	$(UV) run muletrace demo build
+	$(UV) run muletrace docs render
+
+.PHONY: image
+image:  ## Build the arm64 scoring image (needs Docker with buildx)
+	$(UV) export --frozen --no-dev --no-emit-project --extra aws -o docker/requirements.txt
+	docker buildx build --platform linux/arm64 -f docker/lambda.Dockerfile -t muletrace-scorer --load .
+
+ALERT_EMAIL ?= alerts@example.invalid
+
+.PHONY: synth
+synth:  ## Synthesise every CDK stack and run cdk-nag
+	$(UV) run --group infra pytest tests/infra -q
+	npx -y aws-cdk@2 synth --quiet -c alert_email=$(ALERT_EMAIL)
+
+.PHONY: deploy
+deploy:  ## Deploy every stack with your AWS profile (set ALERT_EMAIL to a real address)
+	$(UV) export --frozen --no-dev --no-emit-project --extra aws -o docker/requirements.txt
+	$(UV) export --frozen --no-dev --no-emit-project --extra pipeline --extra aws -o docker/requirements-batch.txt
+	npx -y aws-cdk@2 deploy --all -c alert_email=$(ALERT_EMAIL)
+
+.PHONY: teardown
+teardown:  ## Delete every stack, including the data bucket's objects
+	npx -y aws-cdk@2 destroy --all --force
+
+.PHONY: notebooks
+notebooks:  ## Re-execute the notebooks in place (outputs are committed)
+	cd notebooks && $(UV) run jupyter nbconvert --to notebook --execute --inplace 01_eda.ipynb 02_error_analysis.ipynb

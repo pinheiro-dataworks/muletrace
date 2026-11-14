@@ -1,0 +1,21 @@
+# Fund-flow tracer, inspired by MED 2.0 (not an implementation of it).
+#
+# The BCB presentation "Aprimoramentos no Mecanismo Especial de Devolução -
+# MED 2.0" (Circuito Pix, 14 October 2025) names four tracing parameters:
+# MinTransactionAmount, MaxTransactions, HopWindow and MaxHops. It does not
+# publish their values. Every value below is an ASSUMPTION (A5 in the
+# business case) and can be changed here.
+
+# MaxHops: depth of the trace after the first receiving account.
+max_hops: 5
+
+# HopWindow: tainted money is followed onwards only by outflows that leave
+# within this many hours of the tainted inflow that funded them.
+hop_window_hours: 72
+
+# MinTransactionAmount: outflows below this amount (US dollars) are not
+# followed; the tainted money they carry is counted as having left the trace.
+min_transaction_usd: 10.0
+
+# MaxTransactions: cap on the number of onward transfers followed per trace.
+max_transactions: 500

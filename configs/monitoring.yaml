@@ -1,0 +1,25 @@
+# Weekly drift job.
+#
+# Features: the five with the largest mean absolute SHAP contribution in the HI-Small
+# backtest (docs/generated/backtest_HI-Small.yaml, feature_importance_lgbm_tabular_graph).
+# Together with the three score metrics this stays within ten CloudWatch custom metrics.
+#
+# Thresholds are conventions, not standards. PSI above 0.25 is the commonly used rule of
+# thumb for a significant population shift; the KS threshold of 0.1 is this project's own
+# assumption. Both are revisited once real alert history exists.
+
+dataset: HI-Small
+reference_day: "2022-09-06"   # last snapshot the final model was trained on
+features:
+  - inflow_usd_24h
+  - sender_mean_out_degree
+  - ach_inflow_share
+  - account_age_hours
+  - inflow_usd_168h
+# Reported, never alerting. Account age is measured from the first transaction in the data,
+# and AMLworld starts on 1 September 2022, so every account ages 24 hours a day and the
+# feature drifts by construction (docs/generated/drift_HI-Small.yaml, model card).
+report_only:
+  - account_age_hours
+psi_alert: 0.25
+ks_alert: 0.1

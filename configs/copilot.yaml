@@ -1,0 +1,24 @@
+# Investigation copilot on Amazon Bedrock.
+#
+# Model IDs must be enabled in the account (Bedrock console, model access) before a
+# Bedrock evaluation runs. The judge model is left empty on purpose: set it to a
+# stronger model enabled in your account, and only after human labels exist in
+# evals/judge_calibration/labels.csv.
+
+agent_model: amazon.nova-lite-v1:0
+single_call_model: amazon.nova-lite-v1:0
+judge_model: null
+
+# On-demand prices, US dollars per 1,000 tokens, us-east-1.
+price_source: "AWS Price List API, AmazonBedrock offer file for us-east-1, publication 2026-11-11T01:30:37Z"
+prices:
+  amazon.nova-micro-v1:0: {input_per_1k: 0.000035, output_per_1k: 0.00014}
+  amazon.nova-lite-v1:0: {input_per_1k: 0.00006, output_per_1k: 0.00024}
+
+# A case that needs more tokens than this stops and counts as failed.
+token_budget_per_case: 20000
+max_tool_rounds: 4
+
+# Pull requests run a smoke subset; release tags run every case.
+smoke_cases: 20
+adversarial_cases: 10

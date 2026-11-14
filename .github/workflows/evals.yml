@@ -1,0 +1,93 @@
+name: evals
+
+# The copilot release gate.
+#
+# * Pull requests run the deterministic template baseline on the smoke subset of the gold set:
+#   it needs no cloud access and checks that the fact checker still rejects every perturbation.
+# * Release tags run every gold case. When the AWS_EVAL_ROLE_ARN variable is set on the "evals"
+#   environment, the single-call and multi-agent copilots are evaluated on Bedrock as well; the
+#   job fails if any threshold in configs/eval_thresholds.yaml is broken.
+on:
+  pull_request:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_FROZEN: "1"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  template:
+    name: template baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - run: uv sync --all-extras --group dev
+      - name: Evaluate the template baseline
+        env:
+          SMOKE: ${{ github.event_name == 'pull_request' && '--smoke' || '' }}
+        run: uv run muletrace copilot eval --provider template $SMOKE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: copilot-eval-template
+          path: docs/generated/copilot_eval_template_*.yaml
+
+  bedrock:
+    name: bedrock copilots
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: evals
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - id: check
+        env:
+          ROLE: ${{ vars.AWS_EVAL_ROLE_ARN }}
+        run: |
+          if [[ -z "$ROLE" ]]; then
+            echo "AWS_EVAL_ROLE_ARN is not set; the Bedrock evaluation is skipped." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: steps.check.outputs.configured == 'true'
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        if: steps.check.outputs.configured == 'true'
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4
+        if: steps.check.outputs.configured == 'true'
+        with:
+          role-to-assume: ${{ vars.AWS_EVAL_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Evaluate both copilots
+        if: steps.check.outputs.configured == 'true'
+        env:
+          BEDROCK_GUARDRAIL_ID: ${{ vars.BEDROCK_GUARDRAIL_ID }}
+        run: |
+          uv sync --all-extras --group dev
+          status=0
+          uv run muletrace copilot eval --provider single || status=1
+          uv run muletrace copilot eval --provider multi || status=1
+          exit "$status"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always() && steps.check.outputs.configured == 'true'
+        with:
+          name: copilot-eval-bedrock
+          path: docs/generated/copilot_eval_*.yaml

@@ -1,0 +1,33 @@
+# Rules baseline: the threshold rules a mid-size provider might run today.
+#
+# Each triggered rule adds its points; accounts are ranked by total points and
+# ties are broken by the US-dollar inflow of the last 24 hours. Thresholds are
+# hand-set (assumptions), not tuned on the test snapshots.
+
+tie_breaker: inflow_usd_24h
+
+rules:
+  - name: fan_in
+    description: "Five or more distinct senders in the last 24 hours"
+    feature: distinct_senders_24h
+    operator: ">="
+    threshold: 5
+    points: 1
+  - name: pass_through
+    description: "At least 80% of the last 24 hours of inflow already sent out"
+    feature: pass_through_ratio_24h
+    operator: ">="
+    threshold: 0.8
+    points: 1
+  - name: young_account
+    description: "First transaction less than 72 hours ago"
+    feature: account_age_hours
+    operator: "<="
+    threshold: 72
+    points: 1
+  - name: new_key
+    description: "Pix key registered less than 7 days ago (Pix layer)"
+    feature: key_age_days
+    operator: "<="
+    threshold: 7
+    points: 1

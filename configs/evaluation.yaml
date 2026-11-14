@@ -1,0 +1,26 @@
+# Evaluation design shared by the rules baseline and every model.
+#
+# Snapshots are taken daily at 00:00. The last as-of time is the last one whose
+# 48-hour horizon ends inside AMLworld's primary period (1-10 September 2022),
+# so the post-period tail never decides a label window on its own.
+
+first_snapshot: 2022-09-02T00:00:00
+last_snapshot: 2022-09-09T00:00:00
+snapshot_step_hours: 24
+
+# Temporal hold-out used by the week-1 baseline and as the final test set.
+test_snapshots:
+  - 2022-09-07T00:00:00
+  - 2022-09-08T00:00:00
+  - 2022-09-09T00:00:00
+
+# A1: analyst capacity in alerts per 10,000 scored accounts per day.
+headline_alert_budget_per_10k: 20
+alert_budgets_per_10k: [5, 10, 20, 50, 100]
+
+# A2: cost of a missed mule in review units (a false positive costs 1).
+missed_mule_cost_review_units: [10, 50, 100, 500]
+
+bootstrap:
+  replicates: 1000
+  seed: 7

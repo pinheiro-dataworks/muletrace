@@ -1,0 +1,43 @@
+# LightGBM training. A small, justified search space: a few well-chosen trials
+# rather than hundreds of blind ones.
+
+seed: 20261109
+num_threads: 6
+
+# Keep this share of negatives in each training set and weight them by its
+# inverse, so predicted probabilities stay on the original scale. Positives
+# are always kept.
+negative_sample_rate: 0.2
+
+max_boost_rounds: 2000
+early_stopping_rounds: 100
+
+base_params:
+  objective: binary
+  learning_rate: 0.05
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  lambda_l2: 1.0
+  verbosity: -1
+
+# Searched on the first backtest fold's validation snapshot only, then frozen
+# for every later fold, so the hold-out never influences the choice.
+search:
+  num_leaves: [15, 31, 63]
+  min_data_in_leaf: [50, 200]
+
+# Grid for the tuned rules baseline, chosen on training snapshots only.
+rules_search:
+  fan_in: [2, 3, 5]
+  pass_through: [0.5, 0.8, 0.95]
+  young_account: [24, 72, 168]
+  new_key: [7, 30]
+
+# Test snapshots of the rolling-origin backtest. Each fold validates on the
+# snapshot one horizon earlier and trains on everything before that.
+backtest_test_snapshots:
+  - 2022-09-06T00:00:00
+  - 2022-09-07T00:00:00
+  - 2022-09-08T00:00:00
+  - 2022-09-09T00:00:00

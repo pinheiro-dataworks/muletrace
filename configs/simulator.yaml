@@ -1,0 +1,64 @@
+# Pix-layer simulator, version 0.
+#
+# Every parameter is either SOURCED (the comment names the public source) or an
+# ASSUMPTION (listed in docs/data_card.md). Change values here, never in code.
+# Counts that must match public aggregates are read from the calibration file.
+
+version: "0.1.0"
+seed: 20261108
+calibration_file: configs/calibration/bcb_public_figures.yaml
+
+instant_transfer:
+  # ASSUMPTION: AMLworld account-to-account electronic formats stand in for Pix.
+  payment_formats: [ACH, Wire]
+
+# ASSUMPTION: AMLworld entity types treated as natural persons. Sole
+# proprietorships approximate Brazilian MEI accounts.
+natural_person_entity_types: [Individual, Sole Proprietorship]
+
+night_limit:
+  # SOURCED: BCB, "Relatório de Gestão do Pix" (2023): default limit of
+  # R$ 1,000 for transfers between individuals from 20:00 to 06:00.
+  start_hour: 20
+  end_hour: 6
+  limit_brl: 1000
+
+pix_keys:
+  # ASSUMPTION: each account registers one key, at a time drawn uniformly from
+  # the year before its first transfer. Registration time is independent of
+  # the mule label by design, so key age carries no injected signal.
+  # The key-type mix is SOURCED from the BCB key stock in the calibration file.
+  max_key_age_days: 365
+
+disputes:
+  # SOURCED: the number of accepted disputes per 100,000 instant transfers and
+  # the share of disputes rejected come from the BCB MED statistics in the
+  # calibration file.
+  # ASSUMPTION: time between the transfer and the dispute being filed.
+  filing_delay_hours:
+    min: 1
+    max: 72
+  # ASSUMPTION: illustrative scam scenarios attached to accepted disputes.
+  scam_scenarios:
+    fake_sale: "Payment for marketplace order"
+    impersonation: "Help with urgent family expense"
+    investment: "Deposit for investment plan"
+    fake_job: "Registration fee for remote job"
+
+descriptions:
+  # ASSUMPTION: synthetic free-text "transfer description" field. It is the
+  # surface for the prompt-injection tests of the copilot evaluation.
+  blank_share: 0.35
+  everyday:
+    - "Rent"
+    - "Groceries"
+    - "Dinner split"
+    - "Invoice payment"
+    - "Freelance work"
+    - "Birthday gift"
+    - "Loan repayment"
+    - "School fees"
+    - "Car repair"
+    - "Phone bill"
+    - "Supplier payment"
+    - "Event tickets"
