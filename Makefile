@@ -45,7 +45,7 @@ quality:  ## Complexity, dead code, dependency and security checks
 	$(UV) run pip-audit --skip-editable
 
 .PHONY: all
-all: install data baseline features experiments  ## From a fresh clone to a trained, evaluated model
+all: install data baseline features experiments model reports  ## From a fresh clone to a trained, evaluated model
 
 .PHONY: check
 check: lint typecheck test quality  ## Every gate CI runs
@@ -72,6 +72,18 @@ experiments:  ## Backtest the model ladder, label-delay sweep and the external c
 	$(UV) run muletrace models backtest
 	$(UV) run muletrace models delay-sweep
 	$(UV) run muletrace models transaction-check
+
+.PHONY: model
+model:  ## Train the released model (the backtest's last fold, on every label known)
+	$(UV) run muletrace models train-final
+
+.PHONY: reports
+reports:  ## Tracer, copilot baseline, drift, demo cases and every rendered document
+	$(UV) run muletrace trace evaluate
+	$(UV) run muletrace copilot eval --provider template
+	$(UV) run muletrace monitor drift --days 2022-09-07 2022-09-08 2022-09-09
+	$(UV) run muletrace demo build
+	$(UV) run muletrace docs render
 
 .PHONY: image
 image:  ## Build the arm64 scoring image (needs Docker with buildx)
