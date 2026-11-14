@@ -9,6 +9,7 @@ FROM public.ecr.aws/lambda/python:3.12-arm64
 RUN dnf install -y libgomp && dnf clean all
 
 COPY docker/requirements.txt /tmp/requirements.txt
+# The requirements carry SHA-256 hashes, so pip refuses any package that does not match.
 RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 # The package is copied whole so imports are identical to the batch path; only the serving,

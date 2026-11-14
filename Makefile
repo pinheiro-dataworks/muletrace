@@ -75,7 +75,7 @@ experiments:  ## Backtest the model ladder, label-delay sweep and the external c
 
 .PHONY: image
 image:  ## Build the arm64 scoring image (needs Docker with buildx)
-	$(UV) export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
+	$(UV) export --frozen --no-dev --no-emit-project --extra aws -o docker/requirements.txt
 	docker buildx build --platform linux/arm64 -f docker/lambda.Dockerfile -t muletrace-scorer --load .
 
 ALERT_EMAIL ?= alerts@example.invalid
@@ -87,8 +87,8 @@ synth:  ## Synthesise every CDK stack and run cdk-nag
 
 .PHONY: deploy
 deploy:  ## Deploy every stack with your AWS profile (set ALERT_EMAIL to a real address)
-	$(UV) export --frozen --no-dev --no-emit-project --no-hashes --extra aws -o docker/requirements.txt
-	$(UV) export --frozen --no-dev --no-emit-project --no-hashes --extra pipeline --extra aws -o docker/requirements-batch.txt
+	$(UV) export --frozen --no-dev --no-emit-project --extra aws -o docker/requirements.txt
+	$(UV) export --frozen --no-dev --no-emit-project --extra pipeline --extra aws -o docker/requirements-batch.txt
 	npx -y aws-cdk@2 deploy --all -c alert_email=$(ALERT_EMAIL)
 
 .PHONY: teardown
