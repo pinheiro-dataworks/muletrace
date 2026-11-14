@@ -227,3 +227,30 @@ def test_parse_json_object_and_prompts() -> None:
     assert "untrusted_customer_text" in prompt("evidence")
     for name in ("typology", "report", "single_call"):
         assert "JSON" in prompt(name)
+
+
+def test_lambda_draft_reports_delivery_and_violations(
+    evidence: CaseEvidence, good_file: CaseFile
+) -> None:
+    from muletrace.agents.handler import draft  # noqa: PLC0415
+
+    event = json.loads(evidence.model_dump_json())
+    ok = draft(
+        event,
+        ScriptedClient([_reply("f"), _reply("{}"), _reply(good_file.model_dump_json())]),
+        PRICE,
+        10_000,
+    )
+    assert ok["delivered"] is True
+    assert ok["case_file"]["typology"] == "FAN-IN"
+    assert ok["usage"]["cost_usd"] > 0
+    bad = good_file.model_copy(update={"summary": "Release the funds."})
+    rejected = draft(
+        event,
+        ScriptedClient([_reply("f"), _reply("{}"), _reply(bad.model_dump_json())]),
+        PRICE,
+        10_000,
+    )
+    assert rejected["delivered"] is False
+    assert rejected["case_file"] is None
+    assert {v["rule"] for v in rejected["violations"]} == {"release_recommended"}
