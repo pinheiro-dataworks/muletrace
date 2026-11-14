@@ -308,7 +308,28 @@ configured. Judge results will only be reported next to their agreement with hum
 (`evals/judge_calibration/README.md`), which do not exist yet. No number for these is given here
 because none has been measured.
 
-## 14. Limitations of this evaluation
+## 14. Drift between the training data and the hold-out
+
+The drift job (`muletrace monitor drift`, configuration in `configs/monitoring.yaml`) compares
+each hold-out day, scored by the released model, with the last training snapshot (6 September):
+population stability index (PSI) over the reference deciles and the two-sample KS statistic, on
+the score and on the five most important features. Alerts fire above a PSI of
+{{ drift_HI-Small.thresholds.psi_alert | f2 }} or a KS of {{ drift_HI-Small.thresholds.ks_alert | f2 }}.
+
+| Day | Score PSI | Score KS | Largest PSI among alerting features | Account age PSI (report only) |
+|---|---:|---:|---|---:|
+| 7 Sep | {{ drift_HI-Small.days.2022-09-07.score.psi | f4 }} | {{ drift_HI-Small.days.2022-09-07.score.ks | f4 }} | {{ drift_HI-Small.days.2022-09-07.max_feature_psi.feature }} ({{ drift_HI-Small.days.2022-09-07.max_feature_psi.psi | f4 }}) | {{ drift_HI-Small.days.2022-09-07.features.account_age_hours.psi | f2 }} |
+| 8 Sep | {{ drift_HI-Small.days.2022-09-08.score.psi | f4 }} | {{ drift_HI-Small.days.2022-09-08.score.ks | f4 }} | {{ drift_HI-Small.days.2022-09-08.max_feature_psi.feature }} ({{ drift_HI-Small.days.2022-09-08.max_feature_psi.psi | f4 }}) | {{ drift_HI-Small.days.2022-09-08.features.account_age_hours.psi | f2 }} |
+| 9 Sep | {{ drift_HI-Small.days.2022-09-09.score.psi | f4 }} | {{ drift_HI-Small.days.2022-09-09.score.ks | f4 }} | {{ drift_HI-Small.days.2022-09-09.max_feature_psi.feature }} ({{ drift_HI-Small.days.2022-09-09.max_feature_psi.psi | f4 }}) | {{ drift_HI-Small.days.2022-09-09.features.account_age_hours.psi | f2 }} |
+
+**Reading.** The score distribution is stable across the hold-out, and so are the alerting
+features. Account age is not, by construction: it is measured from the first transaction in the
+data (1 September 2022), so every account ages 24 hours a day and its distribution moves
+further from the reference every day. It is kept in the report and left out of alerting, and the
+model card lists the underlying limitation: part of what the model learned about new accounts is
+an artefact of the data window.
+
+## 15. Limitations of this evaluation
 
 - Three hold-out days and ten days of data in total: nothing here describes behaviour over weeks.
 - One random seed per model; the bootstrap covers sampling of accounts, not training randomness.
@@ -316,3 +337,4 @@ because none has been measured.
 - Hyper-parameters were chosen on the first fold only, which protects the hold-out but may leave
   later folds slightly under-tuned.
 - The copilot evaluation covers one dataset (HI-Small) and, so far, only the template baseline.
+- Account age is measured from the start of the data, not from account opening (section 14).
