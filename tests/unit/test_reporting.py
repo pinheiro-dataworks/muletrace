@@ -66,9 +66,12 @@ def test_render_documents(tmp_path: Path) -> None:
 def test_committed_documents_match_their_templates() -> None:
     """Published numbers cannot be edited by hand or go stale."""
     sources = load_sources(REPO_ROOT / "docs" / "generated", REPO_ROOT / "configs" / "calibration")
-    for template in sorted((REPO_ROOT / "docs" / "templates").glob("*.md")):
-        committed = (REPO_ROOT / "docs" / template.name).read_text(encoding="utf-8")
-        assert committed == render(template.read_text(encoding="utf-8"), sources), template.name
+    targets = {"docs/templates": "docs", "docs/templates/root": "."}
+    for template_dir, output_dir in targets.items():
+        for template in sorted((REPO_ROOT / template_dir).glob("*.md")):
+            committed = (REPO_ROOT / output_dir / template.name).read_text(encoding="utf-8")
+            assert committed == render(template.read_text(encoding="utf-8"), sources), template.name
+    assert (REPO_ROOT / "docs/templates/root/README.md").is_file()
 
 
 def test_duplicate_source_names_are_rejected(tmp_path: Path) -> None:
