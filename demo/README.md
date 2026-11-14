@@ -13,7 +13,8 @@ python -m http.server --directory demo # then open http://localhost:8000
 ```
 
 The page is plain HTML, CSS and JavaScript with no dependencies. `.github/workflows/pages.yml`
-publishes this folder to GitHub Pages when it changes on `main`.
+publishes this folder to GitHub Pages when it changes on `main`; the live copy is at
+<https://pinheiro-dataworks.github.io/muletrace/>.
 
 `cases.json` contains data derived from IBM AMLworld (CDLA-Sharing-1.0, see
 [`data/LICENSES`](../data/LICENSES)) and synthetic Pix-layer descriptions.
