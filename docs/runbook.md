@@ -8,7 +8,8 @@ the account owner's credentials; nothing in this repository has been deployed by
 1. **Secure the root user** with MFA, then stop using it. Create an administrator in IAM Identity
    Center with MFA for console work.
 2. **Region**: us-east-1 for everything.
-3. **Bedrock model access**: enable the models the copilot uses (week 4), and only those.
+3. **Bedrock model access**: enable Amazon Nova Lite and Nova Micro (the copilot's models), and
+   only those.
 4. **CDK bootstrap**, once, from CloudShell: `npx aws-cdk@2 bootstrap aws://<account-id>/us-east-1`.
 5. **GitHub OIDC role**: deploy `infra/bootstrap/github-oidc-role.yaml` (the command is in its
    header). Set the two subject parameters to the exact `sub` claims GitHub issues for this
