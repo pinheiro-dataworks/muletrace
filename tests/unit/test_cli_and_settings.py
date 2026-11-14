@@ -207,3 +207,30 @@ def test_copilot_commands(workspace: Path, monkeypatch: pytest.MonkeyPatch) -> N
         "g-1",
         ["bedrock"],
     )
+
+
+def test_monitor_drift_command(workspace: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from datetime import datetime  # noqa: PLC0415
+
+    shutil.copytree(REPO_ROOT / "configs", workspace / "configs")
+    features = yaml.safe_load((workspace / "configs/monitoring.yaml").read_text("utf-8"))[
+        "features"
+    ]
+    days = [datetime(2022, 9, 6), datetime(2022, 9, 9)]
+    snapshots = pl.DataFrame(
+        {
+            "account_id": [1, 2, 1, 2],
+            "as_of": [days[0], days[0], days[1], days[1]],
+            **{name: [1.0, 2.0, 1.0, 2.0] for name in features},
+        }
+    )
+    monkeypatch.setattr("muletrace.features.build.build_snapshots", lambda *_: snapshots)
+    monkeypatch.setattr("muletrace.models.artifact.load_artifact", lambda _: None)
+    monkeypatch.setattr(
+        "muletrace.serving.batch.score_snapshot",
+        lambda frame, _: frame.select("account_id", "as_of").with_columns(probability=pl.lit(0.1)),
+    )
+    assert cli.main(["monitor", "drift", "--days", "2022-09-09"]) == 0
+    report = yaml.safe_load((workspace / "docs/generated/drift_HI-Small.yaml").read_text("utf-8"))
+    assert report["days"]["2022-09-09"]["alerts"] == []
+    assert report["report_only"] == ["account_age_hours"]

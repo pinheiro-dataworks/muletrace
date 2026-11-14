@@ -11,12 +11,12 @@ import argparse
 import logging
 from collections.abc import Sequence
 
-from muletrace.cli import copilot, data, docs, models, tracing
+from muletrace.cli import copilot, data, docs, models, monitoring, tracing
 from muletrace.cli._common import Handler, logger
 from muletrace.perf import measure
 from muletrace.settings import Settings, load_env_file
 
-GROUPS = (data, models, tracing, copilot, docs)
+GROUPS = (data, models, tracing, copilot, monitoring, docs)
 
 
 def build_parser() -> argparse.ArgumentParser:
