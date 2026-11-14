@@ -2,9 +2,270 @@
   <img src="docs/assets/logo_renan_ds.png" alt="Renan Pinheiro logo" width="220">
 </p>
 
+<!-- Rendered from docs/templates/root/README.md by `muletrace docs render`.
+     Every number below is a placeholder resolved against docs/generated/*.yaml and
+     configs/calibration/*.yaml; a test fails if this file and its template drift apart. -->
+
 # MuleTrace
 
-Receive-side mule-account defence for instant payments: point-in-time graph risk
-scoring, fund-flow tracing and an evidence-grounded investigation copilot on AWS.
+**Receive-side mule-account defence for instant payments:** a daily, point-in-time graph risk
+score for receiving accounts, a fund-flow tracer inspired by Brazil's MED 2.0, and an
+investigation copilot whose case files are checked fact by fact before an analyst sees them,
+with the production path on AWS.
 
-> Work in progress. All data used by this project is synthetic.
+MuleTrace is a portfolio project built end to end by one person on **synthetic data** (IBM
+AMLworld plus a simulated Pix layer). It is not used by any bank or payment provider, and it does
+not process real Pix data. What it tries to show is the judgement a senior data scientist brings
+to a fraud problem: start from the decision an analyst makes and its budget, make the
+validation honest about time and labels, measure everything that is published, and say plainly
+what did not work.
+
+[Case explorer (static demo)](demo/) ·
+[Evaluation report](docs/eval_report.md) ·
+[Model card](docs/model_card.md) ·
+[Business case](docs/business_case.md) ·
+[Decisions (ADRs)](docs/adr/README.md)
+
+## Results at a glance
+
+HI-Small temporal hold-out (7 to 9 September 2022), **20 alerts per 10,000 scored accounts**,
+95% intervals from a paired bootstrap:
+
+| | Recall (95% CI) | Precision | Average precision |
+|---|---:|---:|---:|
+| Rules, tuned on training days | 1.5% (1.1 to 2.1%) | 2.1% | 0.007 |
+| LightGBM, behaviour features | 15.7% (14.2 to 17.1%) | 21.0% | 0.126 |
+| **LightGBM, behaviour + graph** | **18.5%** (17.0 to 20.0%) | 24.7% | 0.159 |
+
+- Graph features raise recall by 2.8% in absolute terms
+  (1.7 to 4.0%) on HI-Small; on LI-Small,
+  with fewer mules, the graph model reaches 11.9% recall and its gain over
+  behaviour features is not distinguishable from zero.
+- **What failed:** the score finds mules that are already active
+  (32.2% recall) and almost never those that are not yet
+  (0.3%). Alerted accounts receive only
+  3.1% of the simulated illicit inflow, which is why the tracer exists.
+- The deterministic fact checker rejected every perturbed draft in the copilot evaluation, and no
+  unsupported claim reached the analyst. **The language-model copilots have not been evaluated
+  yet**: Bedrock access is pending, so only the model-free baseline is measured.
+
+## 1. The problem in numbers
+
+From the Banco Central do Brasil open-data service (MED statistics, October 2025 to September
+2026, accessed 2026-11-09):
+
+| | |
+|---|---:|
+| Pix transfers disputed through MED (the special return mechanism) | 38,325,403 |
+| Disputes accepted | 3,505,363 |
+| Value of accepted disputes | R$ 7.94 billion |
+| Share of that value actually returned | 12.0% |
+| Share not returned because the account no longer had the balance | 49.8% |
+
+By the time a dispute arrives, the money has usually left the first account. A receiving
+provider wins only by acting on mule-like accounts *before* the dispute, and by following the
+money when one arrives. Amazon Fraud Detector, a managed option for this kind of scoring, has
+been closed to new customers since 7 November 2025; MuleTrace is an open alternative built from
+general-purpose services. Sources and assumptions: [business case](docs/business_case.md).
+
+## 2. The decision it supports
+
+| Problem | Decision | Action | Evidence MuleTrace provides |
+|---|---|---|---|
+| Mules receive and forward money before any dispute | Which accounts to review today, within a fixed budget | Review; a person may place a precautionary hold | Calibrated daily score with reason codes |
+| The first account is often empty when a dispute arrives | Which onward accounts to contact | Notify next-hop institutions | Hop-by-hop trace with recoverable balances |
+| Analysts rebuild evidence by hand | Whether the evidence supports hold, monitor or close | Approve, edit or reject a draft | Case file whose every claim cites a transfer, checked by code |
+| Behaviour drifts; demos run up bills | Retrain or roll back; keep running or stop | Follow the runbook; trip the kill switch | Drift report and alarms; budgets and kill switch |
+
+MuleTrace never acts on its own. Impact is measured in review units (a false positive costs one
+review; a missed mule costs 10 to 500), never in money saved. Full map:
+[docs/decision_map.md](docs/decision_map.md).
+
+## 3. Architecture
+
+```mermaid
+flowchart LR
+  subgraph Laptop["Laptop (free compute)"]
+    K[Kaggle AMLworld] --> P[Prepare + Pix layer]
+    P --> F[Point-in-time snapshots]
+    F --> E[Backtest, evaluation]
+  end
+  subgraph AWS["AWS us-east-1 (CDK, cdk-nag)"]
+    S3[(S3 data and models)]
+    SM[SageMaker Spot training] --> R[Model registry]
+    R -- approval --> PR[Promotion Lambda]
+    SF[Step Functions daily batch] --> DDB[(DynamoDB features)]
+    API[HTTP API, IAM auth] --> L[Scoring Lambda arm64]
+    DDB --> L
+    Q[SQS replay] --> RC[Replay consumer]
+    C[Copilot Lambda] --> BR[Bedrock Nova + Guardrail]
+    D[Weekly drift Lambda] --> CW[CloudWatch alarms]
+    B[Budgets] --> KS[Kill switch]
+  end
+  F --> S3
+  S3 --> SM
+  PR --> L
+  GH[GitHub Actions, OIDC] --> AWS
+```
+
+Plain Python on Lambda, no always-on endpoints, everything tagged, every stack nag-checked in CI.
+Decisions and their reasons: [ADR-002](docs/adr/002-region-and-services.md) (services),
+[ADR-003](docs/adr/003-no-agentcore-in-v1.md) (no AgentCore),
+[ADR-009](docs/adr/009-serving-and-parity.md) (serving).
+
+## 4. Data
+
+- **IBM AMLworld** HI-Small (5,078,345 transactions, one laundering transaction in
+  981) and LI-Small (6,924,049, one in
+  1,942), from Altman et al., arXiv:2306.16424. Licence
+  CDLA-Sharing-1.0, verified on the Kaggle metadata; files are downloaded, never re-published,
+  and pinned by SHA-256.
+- **The Pix layer** is this project's simulator: instant-transfer re-labelling in reals, Pix keys,
+  DICT-style markings, MED-style disputes and free-text descriptions, calibrated only to public
+  BCB aggregates. Its dataset card is ready for publication under CDLA-Sharing-1.0
+  ([card](docs/pix_layer_dataset_card.md)).
+- Limitations: synthetic laundering follows known rules; ten days of data; AMLworld amounts are
+  far larger than Brazilian scam transfers, so every monetary figure is synthetic.
+  [Data card](docs/data_card.md).
+
+## 5. Method
+
+- **Target:** an account is positive at as-of time *t* if it is confirmed as a mule in
+  (*t*, *t* + 48 h]; confirmation arrives 24 hours after its first illicit inflow
+  ([ADR-006](docs/adr/006-target-and-validation-design.md)).
+- **Leakage controls:** every feature uses only transactions strictly before *t*; neighbour labels
+  count only if confirmed before *t*; training labels are truncated at the test time. Property
+  tests generate random transaction tables and check that nothing after *t* can change a feature.
+- **Features:** flows over 24 hours, 72 hours and 7 days, forwarding speed, structuring signals,
+  and graph features (degrees, PageRank, sender aggregates, confirmed-mule neighbours)
+  ([ADR-007](docs/adr/007-graph-features.md)).
+- **Model ladder:** hand-set rules, rules tuned on training days, LightGBM on behaviour features,
+  LightGBM with graph features; isotonic calibration; SHAP reason codes.
+- **Validation:** rolling origin with four folds, a pooled three-day hold-out, a paired Poisson
+  bootstrap, recall at fixed alert budgets, expected cost in review units, a label-delay sweep
+  and AMLworld's own transaction-level task as an external check.
+
+## 6. Results
+
+| | HI-Small | LI-Small |
+|---|---:|---:|
+| Recall at 20 per 10,000, graph model | 18.5% (17.0 to 20.0%) | 11.9% (10.3 to 13.3%) |
+| Average precision, graph model | 0.159 | 0.064 |
+| Recall at 20 per 10,000, tuned rules | 1.5% | 1.4% |
+| Transaction-level F1, external check (paper: GIN / GFP + LightGBM) | 47.62% (28.70% / 62.86%) | 15.83% (7.90% / 20.83%) |
+
+- **Label delay matters, in a counter-intuitive way.** With no confirmation delay, recall at the
+  budget falls to 0.5%; at 48 hours it is
+  22.5%. The slower confirmations are, the more a daily score is worth.
+- **Tuning the rules did not help**, and on LI-Small it made them worse on the hold-out.
+- **Calibration** saturates at 1.0 at the very top of the score range, so displayed
+  probabilities are capped at 0.99.
+- **Fund-flow tracer:** of 30 simulated accepted disputes on HI-Small, the money had moved on
+  in 13; where it had, the median dispute had
+  100.0% of its value beyond the first account. The tracer's
+  pessimistic allocation rule has low precision against AMLworld's labels
+  (23.0% median); ADR-010 explains the trade-off.
+- **Drift:** across the hold-out the score's PSI stayed at or below
+  0.0196; account age drifted by construction, which exposed a real limitation (it is
+  measured from the start of the data, not from account opening).
+
+Everything, with every slice and interval: [docs/eval_report.md](docs/eval_report.md).
+
+## 7. Investigation copilot
+
+Three agents on the Bedrock Converse API (evidence, typology, report) draft a structured case
+file in which every claim lists the transfers, amounts, dates and accounts it relies on. A
+deterministic fact checker compares each of them with the evidence and blocks the draft on any
+mismatch, on an unknown typology, action or policy, on a recommendation to release funds and on
+contact details. A Bedrock Guardrail adds prompt-attack filtering and output masking; it cannot
+see tool results, so the checker, not the guardrail, is the gate
+([ADR-011](docs/adr/011-copilot-grounding-and-guardrails.md)).
+
+| Template baseline on 150 gold cases | Value |
+|---|---:|
+| Unsupported claims reaching the analyst | 0 |
+| Perturbed drafts rejected: invented transfer / wrong amount / wrong date / contact details / release funds | 100.0% / 100.0% / 100.0% / 100.0% / 100.0% |
+| Action agreement | 92.7% |
+| Typology accuracy | 30.8% |
+
+**What failed or is missing:** the template's typology accuracy is low (one account's flow shape
+rarely identifies a typology); the single-call and multi-agent copilots, their cost, latency and
+injection resistance, and the LLM judge are **not measured yet** (Bedrock access and human labels
+are owner actions). The harness, gold set, adversarial suite and release gate are ready
+(`.github/workflows/evals.yml`).
+
+## 8. Production: deploy, monitor, retrain, roll back, tear down
+
+- **Deploy:** `make deploy` or the manual `deploy` workflow (GitHub OIDC, no stored keys,
+  reviewer approval for production). Seven stacks: storage, serving, training, pipeline, agents,
+  monitoring, cost guards.
+- **Promote:** approving a package in the SageMaker model registry triggers the promotion Lambda.
+- **Monitor:** weekly drift job (PSI and KS) with CloudWatch alarms.
+- **Retrain and roll back:** documented in the [runbook](docs/runbook.md); rollback is a
+  re-approval of the previous version.
+- **Stop:** budget alerts at US$15, the kill switch at 100% of it, a deny policy on the
+  deployment role at US$20, anomaly detection.
+- **Tear down:** `make teardown`.
+
+Nothing has been deployed yet: the AWS account setup is an owner action, so every figure about
+the deployed system below is marked as derived or not measured.
+
+## 9. Cost and performance
+
+| Measure | Value | Status |
+|---|---:|---|
+| Cloud cost to date | US$0 | Measured (nothing deployed) |
+| Scoring latency, in-process p50 / p99 | 5.58 / 7.20 ms | Measured locally |
+| Model artefact | 1,496,302 bytes, loads in 44.00 ms | Measured locally |
+| Cost per 1,000 scores | about US$0.0013 plus US$0.0000133 per billed millisecond | Derived from published prices |
+| Copilot model cost per case, upper bound | US$0.0048 | Derived from the token budget |
+| Deployed latency, cold start, cost per copilot case | — | Not measured yet |
+
+Details and sources: [docs/cost.md](docs/cost.md), [docs/performance.md](docs/performance.md).
+
+## 10. How to run
+
+Requirements: Python 3.12 and [uv](https://docs.astral.sh/uv/); a Kaggle API token for the data;
+for the cloud part, an AWS account, Node.js and Docker.
+
+```bash
+uv sync --all-extras --all-groups      # environment from uv.lock
+make all                               # download → prepare → features → backtest → model → reports
+make check                             # every quality gate CI runs
+uv run muletrace --help                # every command
+python -m http.server --directory demo # the case explorer, on http://localhost:8000
+```
+
+Measured on a 6-core laptop: data preparation for both datasets takes seconds, a feature build
+about half a minute per dataset, the LI-Small backtest about 14 minutes and the label-delay sweep
+about 20 minutes ([docs/performance.md](docs/performance.md)).
+
+## 11. Tests and quality gates
+
+pytest with branch coverage (at least 85%, enforced) and Hypothesis property tests for look-ahead,
+label delay, encoding and tracer conservation; ruff, mypy `--strict`, xenon complexity limits,
+vulture, deptry, bandit, pip-audit, gitleaks, cdk-nag, Trivy on the image, a test that fails if a
+published number drifts from its source, and a commit-message check on authorship. Weekly audits:
+[docs/audits](docs/audits).
+
+## 12. Limitations, risks and the next two weeks
+
+- Synthetic data, ten days, one seed per model; no fairness analysis is possible on AMLworld.
+- Account age is measured from the start of the data; a real system must use the opening date.
+- The copilot's language-model results, deployed latency and cloud cost are not measured yet.
+- Risks and controls: [docs/threat_model.md](docs/threat_model.md).
+
+With two more weeks: run the Bedrock evaluation and calibrate the judge with human labels;
+deploy, measure latency and cost, and test the kill switch on purpose; try a pro-rata allocation
+rule in the tracer; replace window aggregates with richer graph-pattern features to close the gap
+to GFP + LightGBM.
+
+## 13. Licences and authorship
+
+- Code: Apache-2.0 ([LICENSE](LICENSE), [NOTICE](NOTICE)).
+- Data derived from IBM AMLworld (the Pix layer, the gold cases, the demo cases):
+  CDLA-Sharing-1.0 ([data/LICENSES](data/LICENSES)). Credit: Altman et al., IBM Research.
+- Brazilian regulatory figures: Banco Central do Brasil open data, cited with dates. No Pix or BCB
+  visual identity is used. "Inspired by MED 2.0" means exactly that: MuleTrace does not
+  implement MED and is not BCB-compliant software.
+- Author: **Renan Pinheiro**, sole author of the code, the analysis and the documents.
