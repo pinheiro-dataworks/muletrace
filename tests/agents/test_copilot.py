@@ -1,13 +1,24 @@
+import json
 from datetime import datetime
 
 import polars as pl
 import pytest
 
-from muletrace.agents.case import CaseEvidence, build_evidence
+from muletrace.agents.case import CaseEvidence, CaseFile, build_evidence
+from muletrace.agents.llm import BedrockClient, ModelPrice, ModelReply, ScriptedClient, Usage
+from muletrace.agents.orchestrator import (
+    parse_json_object,
+    prompt,
+    run_multi_agent,
+    run_single_call,
+)
 from muletrace.agents.template import classify_typology, template_case_file
+from muletrace.agents.tools import TOOL_SPECS, ToolBox
 from muletrace.policy.loader import load_policies, lookup, policy_ids
 from tests.agents.conftest import transfer
 from tests.fixtures.frames import transactions_frame
+
+PRICE = ModelPrice(input_per_1k=0.00006, output_per_1k=0.00024)
 
 
 def test_policy_library_entries_have_sources() -> None:
@@ -87,3 +98,132 @@ def test_template_case_file_passes_the_checker(evidence: CaseEvidence) -> None:
         update={"transfers": (transfer(9, 10, "in", 1, 1.0, fmt="Cheque"),)}
     )
     assert template_case_file(quiet).recommended_action == "close"
+
+
+def test_toolbox_caches_and_separates_customer_text(evidence: CaseEvidence) -> None:
+    tools = ToolBox(evidence)
+    first = json.loads(tools.run("get_transfers", {"direction": "in", "limit": 2}))
+    tools.run("get_transfers", {"direction": "in", "limit": 2})
+    assert tools.calls == 1
+    assert [t["tx_id"] for t in first["transfers"]] == [3, 2]
+    assert first["untrusted_customer_text"] == {}
+    assert json.loads(tools.run("get_risk_profile", {}))["risk_probability"] == 0.4
+    assert json.loads(tools.run("lookup_policy", {"query": "return"}))["policies"]
+    assert "error" in json.loads(tools.run("delete_everything", {}))
+    assert {spec["name"] for spec in TOOL_SPECS} == {
+        "get_transfers",
+        "get_risk_profile",
+        "lookup_policy",
+    }
+
+
+def test_bedrock_client_builds_the_converse_request() -> None:
+    class Runtime:
+        def __init__(self) -> None:
+            self.request: dict = {}
+
+        def converse(self, **request: object) -> dict:
+            self.request = request
+            return {
+                "output": {
+                    "message": {
+                        "content": [
+                            {"text": "hi"},
+                            {"toolUse": {"toolUseId": "1", "name": "x", "input": {}}},
+                        ]
+                    }
+                },
+                "usage": {"inputTokens": 1000, "outputTokens": 500},
+                "stopReason": "guardrail_intervened",
+            }
+
+    runtime = Runtime()
+    client = BedrockClient("amazon.nova-lite-v1:0", runtime, guardrail_id="g-1")
+    reply = client.converse("system", [{"role": "user", "content": [{"text": "q"}]}], TOOL_SPECS)
+    assert runtime.request["inferenceConfig"]["temperature"] == 0.0
+    assert runtime.request["guardrailConfig"]["guardrailIdentifier"] == "g-1"
+    assert len(runtime.request["toolConfig"]["tools"]) == len(TOOL_SPECS)
+    assert (reply.text, len(reply.tool_calls), reply.guardrail_intervened) == ("hi", 1, True)
+    usage = Usage()
+    usage.add(reply, PRICE)
+    assert usage.cost_usd == pytest.approx(1000 * 0.00006 / 1000 + 500 * 0.00024 / 1000)
+
+
+def _reply(text: str = "", tool_calls: list | None = None, tokens: int = 100) -> ModelReply:
+    content = [{"toolUse": call} for call in tool_calls or []]
+    return ModelReply(
+        text=text,
+        tool_calls=tool_calls or [],
+        input_tokens=tokens,
+        output_tokens=tokens,
+        raw_message={"role": "assistant", "content": content},
+    )
+
+
+def test_multi_agent_run_with_tools(evidence: CaseEvidence, good_file: CaseFile) -> None:
+    client = ScriptedClient(
+        [
+            _reply(
+                tool_calls=[
+                    {"toolUseId": "a", "name": "get_transfers", "input": {"direction": "both"}}
+                ]
+            ),
+            _reply("Findings: tx 1, 2, 3 in; tx 4 out."),
+            _reply('{"typology": "FAN-IN", "rationale": "tx 1-3"}'),
+            _reply("Here is the file:\n" + good_file.model_dump_json()),
+        ]
+    )
+    run = run_multi_agent(evidence, client, PRICE, budget_tokens=10_000)
+    assert run.delivered
+    assert run.steps == ["evidence", "typology", "report"]
+    assert run.tool_calls == 1
+    assert run.usage.calls == 4
+    assert "toolResult" in json.dumps(client.sent[1]["messages"])
+
+
+def test_multi_agent_stops_at_the_tool_round_limit(
+    evidence: CaseEvidence, good_file: CaseFile
+) -> None:
+    call = {"toolUseId": "a", "name": "get_risk_profile", "input": {}}
+    client = ScriptedClient(
+        [
+            _reply(tool_calls=[call]),
+            _reply("Findings."),
+            _reply("{}"),
+            _reply(good_file.model_dump_json()),
+        ]
+    )
+    run = run_multi_agent(evidence, client, PRICE, budget_tokens=10_000, max_tool_rounds=1)
+    assert run.delivered
+
+
+def test_budget_and_parsing_failures(evidence: CaseEvidence) -> None:
+    over = run_single_call(
+        evidence, ScriptedClient([_reply("{}", tokens=10_000)]), PRICE, budget_tokens=100
+    )
+    assert over.error is not None
+    assert "budget" in over.error
+    assert not over.delivered
+    multi = run_multi_agent(
+        evidence, ScriptedClient([_reply("x", tokens=10_000)]), PRICE, budget_tokens=100
+    )
+    assert "budget" in (multi.error or "")
+    no_json = run_single_call(
+        evidence, ScriptedClient([_reply("I cannot help.")]), PRICE, budget_tokens=10_000
+    )
+    assert no_json.error == "no JSON object in the answer"
+    invalid = run_single_call(
+        evidence, ScriptedClient([_reply('{"case_id": 1}')]), PRICE, budget_tokens=10_000
+    )
+    assert (invalid.error or "").startswith("invalid case file")
+    with pytest.raises(RuntimeError, match="no replies"):
+        ScriptedClient([]).converse("s", [])
+
+
+def test_parse_json_object_and_prompts() -> None:
+    assert parse_json_object('text {"a": 1} more') == {"a": 1}
+    assert parse_json_object("[1, 2]") is None
+    assert parse_json_object("{broken") is None
+    assert "untrusted_customer_text" in prompt("evidence")
+    for name in ("typology", "report", "single_call"):
+        assert "JSON" in prompt(name)
