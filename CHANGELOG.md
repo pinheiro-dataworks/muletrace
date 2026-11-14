@@ -6,6 +6,11 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- The Pages workflow can check out the repository again: its job-level permissions now
+  include `contents: read`.
+
 ## [1.0.0] - 2026-11-14
 
 Week 5: operations, documentation and release.
