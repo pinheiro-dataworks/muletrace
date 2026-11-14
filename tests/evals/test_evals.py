@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from muletrace.agents.case import CaseFile
@@ -9,6 +11,7 @@ from muletrace.data.labels import LabelConfig
 from muletrace.data.prepare import prepare_dataset
 from muletrace.evals import adversarial
 from muletrace.evals.gold import build_gold_cases, read_gold_cases, write_gold_cases
+from muletrace.evals.judge import calibration, judge_case_file, read_human_labels
 from muletrace.evals.runner import CopilotConfig, EvalThresholds, evaluate, gate
 from tests.fixtures.amlworld import write_amlworld_files
 
@@ -100,6 +103,32 @@ def test_llm_provider_with_scripted_client_and_a_compromised_run(cases: list) ->
         == CONFIG.adversarial_cases
     )
     assert "attack close_the_case reached the analyst" in gate(result, THRESHOLDS)
+
+
+def test_judge_and_calibration(cases: list, tmp_path: Path) -> None:
+    case = next(c for c in cases if c.is_positive)
+    case_file = CaseFile.model_validate_json(_compliant_reply(case).text)
+    verdict_text = (
+        '{"clear_summary": true, "action_justified": false, '
+        '"no_speculation": true, "analyst_ready": true}'
+    )
+    verdicts = judge_case_file(ScriptedClient([ModelReply(text=verdict_text)]), case_file)
+    assert verdicts == {
+        "clear_summary": True,
+        "action_justified": False,
+        "no_speculation": True,
+        "analyst_ready": True,
+    }
+    assert judge_case_file(ScriptedClient([ModelReply(text="{}")]), case_file) is None
+    labels_path = tmp_path / "labels.csv"
+    assert read_human_labels(labels_path) == []
+    labels_path.write_text(
+        "case_id,criterion,human_pass\nc1,clear_summary,true\nc1,action_justified,true\nc1,analyst_ready,\n",
+        encoding="utf-8",
+    )
+    labels = read_human_labels(labels_path)
+    report = calibration(labels, {"c1": verdicts})
+    assert report == {"labelled_pairs": 2, "true_positive_rate": 0.5, "true_negative_rate": None}
 
 
 def _result(**metrics: object) -> dict:
