@@ -6,6 +6,32 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-14
+
+Week 4: investigation copilot and its evaluation.
+
+### Added
+- Case evidence and structured case files in which every claim cites its transfers, amounts,
+  dates and accounts.
+- Deterministic fact checker that rejects drafts with unknown or mismatched facts, unknown
+  typologies, actions or policies, recommendations to release funds, or contact details.
+- Sourced policy library (eight entries) with topic lookup.
+- Model-free template baseline, a single-call baseline and a three-agent copilot (evidence,
+  typology, report) on the Bedrock Converse API with tool use, token budget and tool-round cap.
+- Copilot Lambda and a Bedrock guardrail (prompt attacks, contact details in outputs, releasing
+  funds as a denied topic) in a new agents stack; optional OIDC role for evaluations.
+- 150-case HI-Small gold set built from AMLworld's patterns file, copilot metrics, checker
+  perturbation tests, a prompt-injection suite, a release gate and an evaluation workflow.
+- Binary LLM judge with calibration against human labels (labels pending).
+- `muletrace copilot gold` and `muletrace copilot eval`; copilot section in the evaluation
+  report; ADR-011; week-4 audit.
+
+### Changed
+- PyYAML is a runtime dependency (the copilot reads its policy library in the Lambda).
+
+### Security
+- tornado upgraded to 6.6.1 (CVE-2026-126347), through the notebooks group.
+
 ## [0.2.0] - 2026-11-13
 
 Week 3: production path on AWS.
